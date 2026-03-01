@@ -1,12 +1,7 @@
 <?php
 date_default_timezone_set('America/Los_Angeles');
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'pwsdb');
-define('DB_USER', 'mcallpl');
-define('DB_PASS', 'amazing123');
-
-define('ADMIN_PASSWORD_HASH', '$2y$12$ufPGokeCVe4FDmmlBG9gNu5AnlTP67oVy//sXxiDGaa7a/RiM0LOG');
+require_once __DIR__ . '/.env.php';
 
 function getDB() {
     static $pdo = null;

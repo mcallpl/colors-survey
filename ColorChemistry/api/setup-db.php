@@ -4,7 +4,8 @@ if (($_GET['key'] ?? '') !== 'setupDT2026') { http_response_code(403); die('Unau
 header('Content-Type: text/plain');
 
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=pwsdb;charset=utf8mb4', 'mcallpl', 'amazing123',
+    require_once __DIR__ . '/.env.php';
+    $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4', DB_USER, DB_PASS,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
     $pdo->exec("

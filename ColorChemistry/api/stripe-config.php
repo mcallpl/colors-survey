@@ -1,13 +1,7 @@
 <?php
-// Stripe API Configuration
-define('STRIPE_SECRET_KEY',      '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');
-define('STRIPE_PUBLISHABLE_KEY', 'pk_live_51RfnHU2KfXjg5R6Rb5zfLwWUybTsk7bhJQvOy0YWFg7gpONCFVxR3oGcGyy4QY7Kx8LoAm4xDwVvfNY13t3IjNqT00XxbkpWsa');
-define('STRIPE_PRICE_ID',        'price_1T5uhm2KfXjg5R6RSwav9keh');
-define('STRIPE_WEBHOOK_SECRET',  'whsec_kCuJTBZCoy2K29aFyY04D2qbAM7LO6jz');
-define('STRIPE_API_BASE',        'https://api.stripe.com/v1');
-
-// VIP Access Code — share with special clients to bypass payment
-define('VIP_ACCESS_CODE', 'amazing123');
+// Stripe API Configuration — secrets loaded from .env.php
+require_once __DIR__ . '/.env.php';
+define('STRIPE_API_BASE', 'https://api.stripe.com/v1');
 
 function stripeRequest($endpoint, $params = [], $method = 'POST') {
     $ch = curl_init(STRIPE_API_BASE . $endpoint);
