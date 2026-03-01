@@ -1,6 +1,6 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/mcallpl/public_html/
+    - export DEPLOYPATH=/home/x2v8n84ca09w/public_html/
     - /bin/cp -R ColorChemistry $DEPLOYPATH
     - /bin/cp index.html $DEPLOYPATH
