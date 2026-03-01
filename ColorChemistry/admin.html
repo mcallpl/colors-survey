@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Color Chemistry - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Playfair Display', 'serif'] },
+                    colors: { brand: { red: '#EF4444', yellow: '#F59E0B', green: '#10B981', blue: '#3B82F6' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(-45deg, #ef4444, #f59e0b, #10b981, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; } 25% { background-position: 100% 50%; }
+            50% { background-position: 100% 0%; } 75% { background-position: 0% 100%; }
+            100% { background-position: 0% 50%; }
+        }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; animation: float 8s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-40px) scale(1.1);} }
+        .shake { animation: shake 0.5s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-10px);} 40%{transform:translateX(10px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(6px);} }
+        .spinner { border:3px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; width:20px; height:20px; animation:spin 0.6s linear infinite; display:inline-block; }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .stacked-bar { display:flex; height:24px; border-radius:12px; overflow:hidden; }
+        .stacked-bar > div { transition: width 0.8s ease; }
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .participant-card { animation: fadeIn 0.5s ease forwards; opacity: 0; }
+        html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100vw; }
+        html, body { overscroll-behavior-x: none; touch-action: pan-y; }
+
+        /* ===== REPORT STYLES (rendered off-screen, captured for PDF) ===== */
+        .report-page {
+            width: 816px; /* 8.5in at 96dpi */
+            min-height: 1056px; /* 11in at 96dpi */
+            background: #fff;
+            color: #1a1a2e;
+            padding: 48px;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .report-header-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981, #3B82F6);
+        }
+        .report-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+            background: #fafafa;
+        }
+        .report-score-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .report-score-fill { height: 100%; border-radius: 4px; }
+        .report-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-white font-sans overflow-x-hidden min-h-screen">
+
+    <!-- ===== LOGIN OVERLAY ===== -->
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950">
+        <div class="orb w-72 h-72 top-[10%] left-[10%]" style="background:#ef4444"></div>
+        <div class="orb w-96 h-96 bottom-[10%] right-[5%]" style="background:#3b82f6"></div>
+
+        <div class="relative z-10 w-full max-w-sm px-4">
+            <div class="text-center mb-8">
+                <div class="flex justify-center gap-3 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                </div>
+                <h1 class="font-display text-3xl font-black mb-1">Color <span class="bg-clip-text text-transparent hero-gradient">Chemistry</span></h1>
+                <p class="text-gray-500 text-sm">Admin Dashboard</p>
+            </div>
+
+            <div class="glass rounded-2xl p-8">
+                <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">Admin Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password"
+                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm mb-3"
+                    onkeydown="if(event.key==='Enter')adminLogin()">
+                <div id="loginError" class="hidden text-red-400 text-xs mb-3"></div>
+                <button id="loginBtn" onclick="adminLogin()" class="w-full py-3 rounded-xl bg-white text-gray-900 font-semibold hover:scale-[1.02] transition-all shadow-lg text-sm">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboard" class="hidden">
+        <!-- Top bar -->
+        <header class="sticky top-0 z-40 glass border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-1.5">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                    </div>
+                    <h1 class="font-display text-lg font-bold">Color <span class="bg-clip-text text-transparent hero-gradient">Chemistry</span></h1>
+                    <span class="text-xs text-gray-500 ml-2">Admin</span>
+                </div>
+                <button onclick="adminLogout()" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Date Controls -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+                <div class="flex items-center gap-3">
+                    <label class="text-sm font-medium text-gray-400">Date:</label>
+                    <input type="date" id="dateFrom" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500 [color-scheme:dark]">
+                    <span id="dateRangeToggle" class="text-gray-500 text-sm hidden">to</span>
+                    <input type="date" id="dateTo" class="hidden px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500 [color-scheme:dark]">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleDateRange()" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors" id="rangeToggleBtn">Date range</button>
+                    <button onclick="fetchResults()" class="px-5 py-2 rounded-xl bg-white text-gray-900 font-semibold text-sm hover:scale-105 transition-all shadow-lg">
+                        Load Results
+                    </button>
+                </div>
+                <div class="flex-1"></div>
+                <div id="downloadBtns" class="hidden flex gap-3">
+                    <button onclick="generatePDF()" id="pdfBtn" class="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm hover:scale-105 transition-all shadow-lg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Download PDF
+                    </button>
+                    <button onclick="printReport()" class="flex items-center gap-2 px-5 py-2 rounded-xl border border-gray-600 text-gray-300 font-semibold text-sm hover:border-white hover:text-white transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIP Access Code -->
+            <div class="glass rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                    <span class="text-sm font-medium text-gray-300">VIP Access Code:</span>
+                </div>
+                <div class="flex items-center gap-2 flex-1">
+                    <input type="text" id="vipCodeInput" placeholder="Loading..."
+                        class="px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500 w-48">
+                    <button onclick="updateVipCode()" id="vipCodeBtn" class="px-4 py-2 rounded-xl bg-indigo-500 text-white text-sm font-semibold hover:bg-indigo-400 transition-colors">
+                        Update
+                    </button>
+                    <span id="vipCodeStatus" class="text-xs text-gray-500"></span>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="hidden text-center py-16"><div class="spinner mx-auto mb-4"></div><p class="text-gray-500 text-sm">Loading results...</p></div>
+
+            <!-- Empty state -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <svg class="w-16 h-16 mx-auto text-gray-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <p class="text-gray-500 text-lg">No results for this date</p>
+                <p class="text-gray-600 text-sm mt-2">Try selecting a different date or date range</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div id="summaryCards" class="hidden grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="glass rounded-2xl p-5 text-center">
+                    <p class="text-4xl font-black text-white" id="sumTotal">0</p>
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mt-1">Participants</p>
+                </div>
+                <div class="glass rounded-2xl p-5 text-center border-l-4 border-red-500">
+                    <p class="text-3xl font-black text-red-400" id="sumRed">0</p>
+                    <p class="text-xs text-gray-400 mt-1">Red <span class="text-gray-600" id="sumRedAvg"></span></p>
+                </div>
+                <div class="glass rounded-2xl p-5 text-center border-l-4 border-yellow-500">
+                    <p class="text-3xl font-black text-yellow-400" id="sumYellow">0</p>
+                    <p class="text-xs text-gray-400 mt-1">Yellow <span class="text-gray-600" id="sumYellowAvg"></span></p>
+                </div>
+                <div class="glass rounded-2xl p-5 text-center border-l-4 border-emerald-500">
+                    <p class="text-3xl font-black text-emerald-400" id="sumGreen">0</p>
+                    <p class="text-xs text-gray-400 mt-1">Green <span class="text-gray-600" id="sumGreenAvg"></span></p>
+                </div>
+                <div class="glass rounded-2xl p-5 text-center border-l-4 border-blue-500">
+                    <p class="text-3xl font-black text-blue-400" id="sumBlue">0</p>
+                    <p class="text-xs text-gray-400 mt-1">Blue <span class="text-gray-600" id="sumBlueAvg"></span></p>
+                </div>
+            </div>
+
+            <!-- Participant List -->
+            <div id="participantList" class="space-y-4"></div>
+        </main>
+    </div>
+
+    <!-- ===== OFF-SCREEN REPORT CONTAINER (for PDF generation) ===== -->
+    <div id="reportContainer" style="position:absolute;left:-9999px;top:0;"></div>
+
+<script>
+const COLOR_HEX = { red: '#EF4444', yellow: '#F59E0B', green: '#10B981', blue: '#3B82F6' };
+const COLOR_LIGHT = { red: '#FEE2E2', yellow: '#FEF3C7', green: '#D1FAE5', blue: '#DBEAFE' };
+const COLOR_NAMES = { red: 'The Ambitious Trailblazer', yellow: 'The Energetic Motivator', green: 'The Reliable Harmonizer', blue: 'The Careful Examiner' };
+
+let adminToken = sessionStorage.getItem('dt_admin_token') || '';
+let currentResults = [];
+let currentSummary = {};
+let currentDateLabel = '';
+
+// ============================================================
+// AUTH
+// ============================================================
+function checkAuth() {
+    if (adminToken) {
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('dateFrom').value = new Date().toISOString().split('T')[0];
+        document.getElementById('dateTo').value = new Date().toISOString().split('T')[0];
+        loadVipCode();
+    }
+}
+
+async function loadVipCode() {
+    try {
+        const resp = await fetch('api/vip-code.php', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        const data = await resp.json();
+        if (data.code) document.getElementById('vipCodeInput').value = data.code;
+    } catch {}
+}
+
+async function updateVipCode() {
+    const input = document.getElementById('vipCodeInput');
+    const btn = document.getElementById('vipCodeBtn');
+    const status = document.getElementById('vipCodeStatus');
+    const code = input.value.trim();
+    if (!code || code.length < 4) { status.textContent = 'Min 4 characters'; status.className = 'text-xs text-red-400'; return; }
+    btn.disabled = true; btn.textContent = '...';
+    try {
+        const resp = await fetch('api/vip-code.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+            body: JSON.stringify({ code })
+        });
+        const data = await resp.json();
+        if (data.success) { status.textContent = 'Updated!'; status.className = 'text-xs text-emerald-400'; }
+        else { status.textContent = data.error || 'Failed'; status.className = 'text-xs text-red-400'; }
+    } catch { status.textContent = 'Error'; status.className = 'text-xs text-red-400'; }
+    btn.disabled = false; btn.textContent = 'Update';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+}
+
+async function adminLogin() {
+    const pw = document.getElementById('loginPassword').value;
+    if (!pw) return;
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span>';
+    document.getElementById('loginError').classList.add('hidden');
+
+    try {
+        const resp = await fetch('api/admin-login.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+        });
+        const text = await resp.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = { error: 'Server error. Please try again.' }; }
+
+        if (!resp.ok) {
+            document.getElementById('loginError').textContent = data.error || 'Login failed';
+            document.getElementById('loginError').classList.remove('hidden');
+            document.getElementById('loginPassword').parentElement.classList.add('shake');
+            setTimeout(() => document.getElementById('loginPassword').parentElement.classList.remove('shake'), 500);
+        } else {
+            adminToken = data.token;
+            sessionStorage.setItem('dt_admin_token', adminToken);
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('dateFrom').value = new Date().toISOString().split('T')[0];
+            document.getElementById('dateTo').value = new Date().toISOString().split('T')[0];
+        }
+    } catch (e) {
+        document.getElementById('loginError').textContent = 'Connection error. Please check your internet and try again.';
+        document.getElementById('loginError').classList.remove('hidden');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+}
+
+function adminLogout() {
+    adminToken = '';
+    sessionStorage.removeItem('dt_admin_token');
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('loginPassword').value = '';
+}
+
+// ============================================================
+// DATE CONTROLS
+// ============================================================
+let rangeMode = false;
+function toggleDateRange() {
+    rangeMode = !rangeMode;
+    document.getElementById('dateTo').classList.toggle('hidden', !rangeMode);
+    document.getElementById('dateRangeToggle').classList.toggle('hidden', !rangeMode);
+    document.getElementById('rangeToggleBtn').textContent = rangeMode ? 'Single date' : 'Date range';
+    if (!rangeMode) document.getElementById('dateTo').value = document.getElementById('dateFrom').value;
+}
+
+// ============================================================
+// FETCH RESULTS
+// ============================================================
+async function fetchResults() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = rangeMode ? document.getElementById('dateTo').value : dateFrom;
+    if (!dateFrom) return;
+
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('summaryCards').classList.add('hidden');
+    document.getElementById('participantList').innerHTML = '';
+    document.getElementById('downloadBtns').classList.add('hidden');
+
+    try {
+        const resp = await fetch(`api/get-results.php?date_from=${dateFrom}&date_to=${dateTo}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+
+        if (resp.status === 401) { adminLogout(); return; }
+
+        const data = await resp.json();
+        document.getElementById('loading').classList.add('hidden');
+
+        if (!data.success || data.results.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            return;
+        }
+
+        currentResults = data.results;
+        currentSummary = data.summary;
+        currentDateLabel = dateFrom === dateTo ? formatDate(dateFrom) : `${formatDate(dateFrom)} - ${formatDate(dateTo)}`;
+
+        renderSummary(data.summary);
+        renderParticipants(data.results);
+        document.getElementById('downloadBtns').classList.remove('hidden');
+    } catch (e) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+    }
+}
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ============================================================
+// RENDER SUMMARY
+// ============================================================
+function renderSummary(summary) {
+    document.getElementById('summaryCards').classList.remove('hidden');
+    document.getElementById('sumTotal').textContent = summary.total_participants;
+
+    ['red', 'yellow', 'green', 'blue'].forEach(c => {
+        const capC = c === 'green' ? 'Green' : c.charAt(0).toUpperCase() + c.slice(1);
+        document.getElementById('sum' + capC).textContent = summary.color_distribution[c];
+        document.getElementById('sum' + capC + 'Avg').textContent = `avg ${summary['avg_' + c]}`;
+    });
+}
+
+// ============================================================
+// RENDER PARTICIPANTS
+// ============================================================
+function renderParticipants(results) {
+    const list = document.getElementById('participantList');
+    list.innerHTML = '';
+
+    results.forEach((r, i) => {
+        const total = r.red_score + r.yellow_score + r.green_score + r.blue_score;
+        const card = document.createElement('div');
+        card.className = 'participant-card glass rounded-2xl p-5 md:p-6';
+        card.style.animationDelay = `${i * 0.05}s`;
+
+        const badgeColor = {
+            red: 'bg-red-500/20 text-red-400 border-red-500/30',
+            yellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+            green: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+            blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+        }[r.dominant_color];
+
+        card.innerHTML = `
+            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Name & Badge -->
+                <div class="flex items-center gap-3 md:w-64 flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br ${getGradient(r.dominant_color)} flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        ${r.first_name[0]}${r.last_name[0]}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-white truncate">${r.first_name} ${r.last_name}</p>
+                        <p class="text-xs text-gray-500 truncate">${r.email}</p>
+                    </div>
+                </div>
+
+                <!-- Stacked Bar -->
+                <div class="flex-1">
+                    <div class="stacked-bar shadow-inner bg-gray-800">
+                        <div style="width:${r.red_score/total*100}%; background:${COLOR_HEX.red}"></div>
+                        <div style="width:${r.yellow_score/total*100}%; background:${COLOR_HEX.yellow}"></div>
+                        <div style="width:${r.green_score/total*100}%; background:${COLOR_HEX.green}"></div>
+                        <div style="width:${r.blue_score/total*100}%; background:${COLOR_HEX.blue}"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs">
+                        <span class="text-red-400 font-bold">${r.red_score}</span>
+                        <span class="text-yellow-400 font-bold">${r.yellow_score}</span>
+                        <span class="text-emerald-400 font-bold">${r.green_score}</span>
+                        <span class="text-blue-400 font-bold">${r.blue_score}</span>
+                    </div>
+                </div>
+
+                <!-- Dominant Badge -->
+                <div class="flex-shrink-0">
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${badgeColor}">
+                        ${r.dominant_color}
+                    </span>
+                </div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+function getGradient(color) {
+    const map = { red: 'from-red-500 to-red-700', yellow: 'from-yellow-500 to-amber-600', green: 'from-emerald-500 to-emerald-700', blue: 'from-blue-500 to-blue-700' };
+    return map[color] || map.blue;
+}
+
+// ============================================================
+// SVG DONUT CHART (for reports)
+// ============================================================
+function createDonutSVG(scores, size) {
+    const total = scores.red + scores.yellow + scores.green + scores.blue;
+    const colors = [
+        { key: 'red', hex: COLOR_HEX.red, score: scores.red },
+        { key: 'yellow', hex: COLOR_HEX.yellow, score: scores.yellow },
+        { key: 'green', hex: COLOR_HEX.green, score: scores.green },
+        { key: 'blue', hex: COLOR_HEX.blue, score: scores.blue }
+    ];
+
+    const r = 15.9155;
+    const c = 2 * Math.PI * r; // circumference
+    let offset = 25; // start at top
+
+    let paths = '';
+    colors.forEach(({ hex, score }) => {
+        const pct = (score / total) * 100;
+        paths += `<circle cx="18" cy="18" r="${r}" fill="none" stroke="${hex}" stroke-width="5" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${offset}" />`;
+        offset -= pct;
+    });
+
+    return `<svg viewBox="0 0 36 36" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">${paths}<circle cx="18" cy="18" r="11" fill="white"/></svg>`;
+}
+
+// ============================================================
+// PDF REPORT GENERATION
+// ============================================================
+async function generatePDF() {
+    if (!currentResults.length) return;
+
+    const btn = document.getElementById('pdfBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Generating...';
+
+    const container = document.getElementById('reportContainer');
+    container.innerHTML = '';
+
+    // ---- COVER PAGE ----
+    const cover = buildCoverPage();
+    container.appendChild(cover);
+
+    // ---- PARTICIPANT PAGES (3 per page) ----
+    const perPage = 3;
+    for (let i = 0; i < currentResults.length; i += perPage) {
+        const page = buildParticipantPage(currentResults.slice(i, i + perPage), i + 1);
+        container.appendChild(page);
+    }
+
+    // ---- SUMMARY PAGE ----
+    const summaryPage = buildSummaryPage();
+    container.appendChild(summaryPage);
+
+    // Small delay for fonts to render
+    await new Promise(r => setTimeout(r, 300));
+
+    // Generate PDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [816, 1056] });
+
+    const pages = container.querySelectorAll('.report-page');
+    for (let i = 0; i < pages.length; i++) {
+        const canvas = await html2canvas(pages[i], {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            width: 816,
+            windowWidth: 816
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        if (i > 0) pdf.addPage([816, 1056]);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 816, 1056);
+    }
+
+    const dateSlug = document.getElementById('dateFrom').value;
+    pdf.save(`Color-Chemistry-Report-${dateSlug}.pdf`);
+
+    container.innerHTML = '';
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Download PDF';
+}
+
+// ---- COVER PAGE ----
+function buildCoverPage() {
+    const page = document.createElement('div');
+    page.className = 'report-page';
+
+    const groupDonut = createDonutSVG({
+        red: currentSummary.avg_red,
+        yellow: currentSummary.avg_yellow,
+        green: currentSummary.avg_green,
+        blue: currentSummary.avg_blue
+    }, 200);
+
+    const distTotal = currentSummary.total_participants;
+
+    page.innerHTML = `
+        <div class="report-header-bar" style="margin-bottom:60px;"></div>
+
+        <div style="text-align:center; margin-bottom:48px;">
+            <div style="display:flex;justify-content:center;gap:10px;margin-bottom:24px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#EF4444"></div>
+                <div style="width:14px;height:14px;border-radius:50%;background:#F59E0B"></div>
+                <div style="width:14px;height:14px;border-radius:50%;background:#10B981"></div>
+                <div style="width:14px;height:14px;border-radius:50%;background:#3B82F6"></div>
+            </div>
+            <h1 style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:#0f172a;margin:0 0 8px 0;">Color Chemistry</h1>
+            <p style="font-size:20px;color:#64748b;margin:0 0 4px 0;">Session Results Report</p>
+            <p style="font-size:16px;color:#94a3b8;margin:0;">${currentDateLabel}</p>
+        </div>
+
+        <div style="display:flex;justify-content:center;margin-bottom:48px;">
+            <div style="text-align:center;">
+                <div style="font-size:72px;font-weight:900;color:#0f172a;">${distTotal}</div>
+                <div style="font-size:14px;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;">Participants</div>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:center;margin-bottom:48px;">
+            ${groupDonut}
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:32px;">
+            ${['red','yellow','green','blue'].map(c => `
+                <div style="text-align:center;">
+                    <div style="width:12px;height:12px;border-radius:50%;background:${COLOR_HEX[c]};margin:0 auto 8px;"></div>
+                    <div style="font-size:24px;font-weight:800;color:${COLOR_HEX[c]};">${currentSummary.color_distribution[c]}</div>
+                    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">${c}</div>
+                    <div style="font-size:11px;color:#cbd5e1;">avg ${currentSummary['avg_' + c]}</div>
+                </div>
+            `).join('')}
+        </div>
+
+        <div style="position:absolute;bottom:48px;left:48px;right:48px;">
+            <div class="report-header-bar"></div>
+            <p style="text-align:center;font-size:11px;color:#cbd5e1;margin-top:12px;">Color Chemistry &mdash; Personality Color Assessment</p>
+        </div>
+    `;
+    return page;
+}
+
+// ---- PARTICIPANT PAGE ----
+function buildParticipantPage(participants, startNum) {
+    const page = document.createElement('div');
+    page.className = 'report-page';
+
+    let cardsHTML = '';
+    participants.forEach((r, i) => {
+        const total = r.red_score + r.yellow_score + r.green_score + r.blue_score;
+        const scores = { red: r.red_score, yellow: r.yellow_score, green: r.green_score, blue: r.blue_score };
+        const donut = createDonutSVG(scores, 100);
+
+        const badgeBg = COLOR_LIGHT[r.dominant_color];
+        const badgeText = COLOR_HEX[r.dominant_color];
+
+        cardsHTML += `
+            <div class="report-card">
+                <div style="display:flex;gap:24px;align-items:center;">
+                    <!-- Donut -->
+                    <div style="flex-shrink:0;">
+                        ${donut}
+                    </div>
+
+                    <!-- Info -->
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                            <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin:0;">${r.first_name} ${r.last_name}</h3>
+                            <span class="report-badge" style="background:${badgeBg};color:${badgeText};">${r.dominant_color} &mdash; ${COLOR_NAMES[r.dominant_color]}</span>
+                        </div>
+                        <p style="font-size:12px;color:#94a3b8;margin:0 0 16px 0;">${r.email}</p>
+
+                        <!-- Score Bars -->
+                        ${['red','yellow','green','blue'].map(c => {
+                            const score = scores[c];
+                            const pct = (score / 48) * 100;
+                            return `
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                                <div style="width:12px;height:12px;border-radius:50%;background:${COLOR_HEX[c]};flex-shrink:0;"></div>
+                                <div style="width:50px;font-size:12px;color:#64748b;text-transform:capitalize;">${c}</div>
+                                <div style="flex:1;">
+                                    <div class="report-score-bar">
+                                        <div class="report-score-fill" style="width:${pct}%;background:${COLOR_HEX[c]}"></div>
+                                    </div>
+                                </div>
+                                <div style="width:28px;text-align:right;font-size:14px;font-weight:700;color:${COLOR_HEX[c]};">${score}</div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    page.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div style="display:flex;gap:4px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#EF4444"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#3B82F6"></div>
+                </div>
+                <span style="font-size:14px;font-weight:600;color:#0f172a;">Color Chemistry</span>
+            </div>
+            <span style="font-size:12px;color:#94a3b8;">${currentDateLabel}</span>
+        </div>
+        <div class="report-header-bar" style="margin-bottom:24px;"></div>
+        ${cardsHTML}
+    `;
+    return page;
+}
+
+// ---- SUMMARY PAGE ----
+function buildSummaryPage() {
+    const page = document.createElement('div');
+    page.className = 'report-page';
+
+    const s = currentSummary;
+    const maxAvg = Math.max(s.avg_red, s.avg_yellow, s.avg_green, s.avg_blue);
+
+    page.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div style="display:flex;gap:4px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:#EF4444"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div>
+                    <div style="width:8px;height:8px;border-radius:50%;background:#3B82F6"></div>
+                </div>
+                <span style="font-size:14px;font-weight:600;color:#0f172a;">Color Chemistry</span>
+            </div>
+            <span style="font-size:12px;color:#94a3b8;">${currentDateLabel}</span>
+        </div>
+        <div class="report-header-bar" style="margin-bottom:40px;"></div>
+
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#0f172a;text-align:center;margin:0 0 8px 0;">Group Summary</h2>
+        <p style="font-size:14px;color:#94a3b8;text-align:center;margin:0 0 40px 0;">${s.total_participants} participants</p>
+
+        <!-- Distribution -->
+        <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin:0 0 20px 0;">Dominant Color Distribution</h3>
+        ${['red','yellow','green','blue'].map(c => {
+            const count = s.color_distribution[c];
+            const pct = s.total_participants > 0 ? Math.round(count / s.total_participants * 100) : 0;
+            return `
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div style="width:12px;height:12px;border-radius:50%;background:${COLOR_HEX[c]};flex-shrink:0;"></div>
+                <div style="width:60px;font-size:14px;font-weight:600;text-transform:capitalize;color:#334155;">${c}</div>
+                <div style="flex:1;height:32px;background:#f1f5f9;border-radius:8px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${COLOR_HEX[c]};border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;">
+                        ${pct > 10 ? `<span style="color:white;font-size:12px;font-weight:700;">${pct}%</span>` : ''}
+                    </div>
+                </div>
+                <div style="width:60px;text-align:right;font-size:14px;font-weight:700;color:${COLOR_HEX[c]};">${count} <span style="font-weight:400;color:#94a3b8;font-size:12px;">(${pct}%)</span></div>
+            </div>`;
+        }).join('')}
+
+        <div style="margin-top:48px;">
+            <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin:0 0 20px 0;">Group Averages</h3>
+            ${['red','yellow','green','blue'].map(c => {
+                const avg = s['avg_' + c];
+                const pct = (avg / 48) * 100;
+                return `
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                    <div style="width:12px;height:12px;border-radius:50%;background:${COLOR_HEX[c]};flex-shrink:0;"></div>
+                    <div style="width:60px;font-size:14px;font-weight:600;text-transform:capitalize;color:#334155;">${c}</div>
+                    <div style="flex:1;height:24px;background:#f1f5f9;border-radius:6px;overflow:hidden;">
+                        <div style="height:100%;width:${pct}%;background:${COLOR_HEX[c]};border-radius:6px;"></div>
+                    </div>
+                    <div style="width:40px;text-align:right;font-size:16px;font-weight:800;color:${COLOR_HEX[c]};">${avg}</div>
+                </div>`;
+            }).join('')}
+        </div>
+
+        <div style="position:absolute;bottom:48px;left:48px;right:48px;">
+            <div class="report-header-bar"></div>
+            <p style="text-align:center;font-size:11px;color:#cbd5e1;margin-top:12px;">Color Chemistry &mdash; Personality Color Assessment</p>
+        </div>
+    `;
+    return page;
+}
+
+// ============================================================
+// PRINT REPORT
+// ============================================================
+function printReport() {
+    if (!currentResults.length) return;
+
+    const container = document.getElementById('reportContainer');
+    container.innerHTML = '';
+    container.appendChild(buildCoverPage());
+    for (let i = 0; i < currentResults.length; i += 3) {
+        container.appendChild(buildParticipantPage(currentResults.slice(i, i + 3), i + 1));
+    }
+    container.appendChild(buildSummaryPage());
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Color Chemistry Report - ${currentDateLabel}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Inter', sans-serif; }
+                .report-page {
+                    width: 8.5in; min-height: 11in; padding: 0.5in;
+                    page-break-after: always; position: relative; background: #fff;
+                }
+                .report-page:last-child { page-break-after: auto; }
+                .report-header-bar { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981, #3B82F6); }
+                .report-card { border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 16px; background: #fafafa; }
+                .report-score-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; margin-top: 4px; }
+                .report-score-fill { height: 100%; border-radius: 4px; }
+                .report-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+                @media print {
+                    .report-page { min-height: auto; }
+                    @page { size: letter; margin: 0; }
+                }
+            </style>
+        </head>
+        <body>${container.innerHTML}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+
+    container.innerHTML = '';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+checkAuth();
+</script>
+</body>
+</html>

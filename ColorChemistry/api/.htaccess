@@ -1,0 +1,12 @@
+<FilesMatch "\.(json)$">
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(db-config|stripe-config)\.php$">
+    Deny from all
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^codes/ - [F,L]
+</IfModule>
