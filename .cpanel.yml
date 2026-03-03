@@ -2,6 +2,5 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/x2v8n84ca09w/public_html/
-    - /bin/rm -rf $DEPLOYPATH/ColorChemistry
     - /bin/cp -R colors-survey $DEPLOYPATH
     - /bin/cp index.html $DEPLOYPATH
