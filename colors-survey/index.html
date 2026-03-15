@@ -2,25 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Color Chemistry - Uncover Your Personality Colors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Chemistry — Discover Your True Colors</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Playfair Display', 'serif'],
+                        display: ['"Playfair Display"', 'serif'],
+                        body: ['Outfit', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
+                        cc: {
                             red: '#EF4444',
                             yellow: '#F59E0B',
                             green: '#10B981',
                             blue: '#3B82F6',
+                            dark: '#0A0A0F',
+                            card: 'rgba(255,255,255,0.04)',
                         }
                     }
                 }
@@ -28,1574 +31,649 @@
         }
     </script>
     <style>
-        .hero-gradient {
-            background: linear-gradient(-45deg, #ef4444, #f59e0b, #10b981, #3b82f6);
-            background-size: 400% 400%;
-            animation: gradientShift 12s ease infinite;
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background: #0A0A0F;
+            color: #e8e8ed;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
         }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            25% { background-position: 100% 50%; }
-            50% { background-position: 100% 0%; }
-            75% { background-position: 0% 100%; }
-            100% { background-position: 0% 50%; }
+
+        /* ── Hero Canvas ── */
+        .hero-canvas {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
+        .hero-canvas::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(59,130,246,0.08) 0%, transparent 70%),
+                        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(239,68,68,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(16,185,129,0.06) 0%, transparent 60%);
+        }
+
+        /* Floating orbs */
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 8s ease-in-out infinite;
+            filter: blur(100px);
+            pointer-events: none;
+            will-change: transform;
         }
-        .orb-red { background: #ef4444; animation-delay: 0s; }
-        .orb-yellow { background: #f59e0b; animation-delay: 2s; }
-        .orb-green { background: #10b981; animation-delay: 4s; }
-        .orb-blue { background: #3b82f6; animation-delay: 6s; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-40px) scale(1.1); }
+        .orb-1 { width: 500px; height: 500px; background: #EF4444; opacity: 0.12; top: -10%; left: -8%; animation: orbDrift1 18s ease-in-out infinite; }
+        .orb-2 { width: 400px; height: 400px; background: #F59E0B; opacity: 0.10; top: 20%; right: -5%; animation: orbDrift2 22s ease-in-out infinite; }
+        .orb-3 { width: 450px; height: 450px; background: #10B981; opacity: 0.10; bottom: -5%; left: 30%; animation: orbDrift3 20s ease-in-out infinite; }
+        .orb-4 { width: 350px; height: 350px; background: #3B82F6; opacity: 0.12; top: 50%; left: 10%; animation: orbDrift4 16s ease-in-out infinite; }
+
+        @keyframes orbDrift1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(60px, 40px) scale(1.1); }
+            66% { transform: translate(-30px, 70px) scale(0.95); }
         }
+        @keyframes orbDrift2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-50px, 50px) scale(1.05); }
+            66% { transform: translate(40px, -30px) scale(1.1); }
+        }
+        @keyframes orbDrift3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(70px, -50px) scale(1.08); }
+        }
+        @keyframes orbDrift4 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            40% { transform: translate(-40px, -60px) scale(1.12); }
+            70% { transform: translate(50px, 20px) scale(0.95); }
+        }
+
+        /* Particle field */
+        .particle-field { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
         .particle {
             position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat linear infinite;
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            15% { opacity: 0.8; transform: scale(1); }
+            85% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+        }
+
+        /* Hero text animations */
+        .hero-eyebrow {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.8s 0.3s ease forwards;
+        }
+        .hero-title {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 0.9s 0.5s ease forwards;
+        }
+        .hero-subtitle {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.8s 0.8s ease forwards;
+        }
+        .hero-cta {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            animation: fadeUp 0.7s 1.1s ease forwards;
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* CTA button */
+        .cta-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 44px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #fff;
+            background: linear-gradient(135deg, #EF4444 0%, #F59E0B 33%, #10B981 66%, #3B82F6 100%);
+            background-size: 300% 300%;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: gradientFlow 6s ease infinite;
+            overflow: hidden;
+        }
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 60px;
+            background: rgba(255,255,255,0);
+            transition: background 0.3s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 20px 60px rgba(239,68,68,0.2), 0 10px 30px rgba(59,130,246,0.15);
+        }
+        .cta-btn:hover::before { background: rgba(255,255,255,0.1); }
+        .cta-btn:active { transform: translateY(-1px) scale(1.01); }
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .cta-arrow {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        .cta-btn:hover .cta-arrow { transform: translateX(4px); }
+
+        /* Scroll-reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.35s; }
+        .reveal-delay-5 { transition-delay: 0.4s; }
+        .reveal-delay-6 { transition-delay: 0.45s; }
+        .reveal-delay-7 { transition-delay: 0.5s; }
+        .reveal-delay-8 { transition-delay: 0.55s; }
+
+        /* Glass card */
+        .glass {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
+        }
+        .glass:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        /* Color swatch animations */
+        .color-swatch {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+        .color-swatch::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            opacity: 0;
+            transition: opacity 0.3s, inset 0.3s;
+        }
+        .color-swatch:hover::after {
+            opacity: 0.4;
+            inset: -10px;
+        }
+
+        /* Step connector line */
+        .step-connector {
+            position: absolute;
+            top: 36px;
+            left: calc(33.33% + 36px);
+            width: calc(33.33% - 72px);
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.06));
+        }
+        .step-connector-2 {
+            left: calc(66.66% + 36px);
+        }
+
+        /* Audience card glow on hover */
+        .audience-card { position: relative; overflow: hidden; }
+        .audience-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--glow-color, rgba(255,255,255,0.04)) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+        .audience-card:hover::before { opacity: 1; }
+
+        /* Testimonial quote styling */
+        .quote-mark {
+            font-family: 'Playfair Display', serif;
+            font-size: 6rem;
+            line-height: 1;
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            opacity: 0.5;
+        }
+
+        /* Section divider */
+        .section-glow {
+            position: relative;
+        }
+        .section-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeUp 0.8s 1.6s ease forwards;
+        }
+        .scroll-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+        .scroll-track {
+            width: 24px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            display: flex;
+            justify-content: center;
+            padding-top: 8px;
+        }
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(14px); opacity: 1; }
+        }
+
+        /* Number accent */
+        .step-number {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 4rem;
+            line-height: 1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: absolute;
+            top: -8px;
+            left: 16px;
+        }
+
+        /* Final CTA glow */
+        .final-cta-section {
+            position: relative;
+        }
+        .final-cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(239,68,68,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse 50% 40% at 30% 80%, rgba(59,130,246,0.05) 0%, transparent 50%),
+                        radial-gradient(ellipse 50% 40% at 70% 80%, rgba(16,185,129,0.05) 0%, transparent 50%);
             pointer-events: none;
-            animation: particleRise linear infinite;
         }
-        @keyframes particleRise {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+
+        /* Responsive tweaks */
+        @media (max-width: 768px) {
+            .step-connector, .step-connector-2 { display: none; }
+            .color-swatch { width: 60px; height: 60px; }
         }
-        .trait-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .trait-card:hover { transform: translateY(-4px); }
-        .score-badge.active {
-            animation: badgePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes badgePop {
-            0% { transform: scale(0.5); }
-            70% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .result-bar { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .slide-enter {
-            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(60px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .stagger-in > * {
-            opacity: 0;
-            animation: fadeUp 0.6s ease forwards;
-        }
-        .stagger-in > *:nth-child(1) { animation-delay: 0.1s; }
-        .stagger-in > *:nth-child(2) { animation-delay: 0.2s; }
-        .stagger-in > *:nth-child(3) { animation-delay: 0.3s; }
-        .stagger-in > *:nth-child(4) { animation-delay: 0.4s; }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-        .glass-light {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .color-wheel {
-            animation: wheelSpin 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes wheelSpin {
-            from { transform: rotate(-180deg) scale(0); opacity: 0; }
-            to { transform: rotate(0deg) scale(1); opacity: 1; }
-        }
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-        .rating-btn { transition: all 0.2s ease; }
-        .rating-btn:hover:not(.used) { transform: scale(1.15); }
-        .rating-btn.used { opacity: 0.3; cursor: not-allowed; }
-        .glow-text { text-shadow: 0 0 40px rgba(255,255,255,0.3); }
-        .desc-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
-        }
-        .desc-content.open { max-height: 1200px; padding-bottom: 24px; }
-        .confetti-piece {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            animation: confettiFall linear forwards;
-            z-index: 100;
-        }
-        @keyframes confettiFall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        /* Auth-specific styles */
-        .auth-input {
-            transition: all 0.2s ease;
-        }
-        .auth-input:focus {
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
-        }
-        .code-input {
-            letter-spacing: 0.5em;
-            font-variant-numeric: tabular-nums;
-        }
-        .shake {
-            animation: shake 0.5s ease;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-10px); }
-            40% { transform: translateX(10px); }
-            60% { transform: translateX(-6px); }
-            80% { transform: translateX(6px); }
-        }
-        .user-card {
-            transition: all 0.2s ease;
-        }
-        .user-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-        }
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.2);
-            border-top-color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.6s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* User avatar colors based on name */
-        .avatar-gradient-0 { background: linear-gradient(135deg, #ef4444, #f59e0b); }
-        .avatar-gradient-1 { background: linear-gradient(135deg, #f59e0b, #10b981); }
-        .avatar-gradient-2 { background: linear-gradient(135deg, #10b981, #3b82f6); }
-        .avatar-gradient-3 { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-        .avatar-gradient-4 { background: linear-gradient(135deg, #8b5cf6, #ef4444); }
-        html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100vw; }
-        html, body { overscroll-behavior-x: none; touch-action: pan-y; }
     </style>
 </head>
-<body class="bg-gray-950 text-white font-sans overflow-x-hidden">
+<body>
 
-    <!-- ===== AUTH SECTION ===== -->
-    <section id="auth" class="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div class="orb orb-red w-72 h-72 top-[10%] left-[10%]"></div>
-        <div class="orb orb-yellow w-96 h-96 top-[60%] right-[5%]"></div>
-        <div class="orb orb-green w-64 h-64 bottom-[10%] left-[30%]"></div>
-        <div class="orb orb-blue w-80 h-80 top-[20%] right-[25%]"></div>
-        <div id="authParticles" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+<!-- ════════════════════ HERO ════════════════════ -->
+<section class="hero-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="particle-field" id="particleField"></div>
 
-        <div class="relative z-10 w-full max-w-md mx-auto px-4">
-            <!-- Logo / Title -->
-            <div class="text-center mb-10">
-                <div class="flex justify-center gap-3 mb-6 stagger-in">
-                    <div class="w-3 h-3 rounded-full bg-red-500 animate-bounce" style="animation-delay:0s"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500 animate-bounce" style="animation-delay:0.15s"></div>
-                    <div class="w-3 h-3 rounded-full bg-emerald-500 animate-bounce" style="animation-delay:0.3s"></div>
-                    <div class="w-3 h-3 rounded-full bg-blue-500 animate-bounce" style="animation-delay:0.45s"></div>
+    <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <p class="hero-eyebrow font-body text-sm md:text-base tracking-[0.3em] uppercase mb-6" style="color:rgba(255,255,255,0.45);">A Personality Color Assessment</p>
+
+        <h1 class="hero-title font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-900 leading-[0.95] mb-8">
+            <span class="block" style="background:linear-gradient(135deg,#EF4444,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">What Color</span>
+            <span class="block mt-1 text-white">Are <em class="italic" style="background:linear-gradient(135deg,#10B981,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">You</em>?</span>
+        </h1>
+
+        <p class="hero-subtitle font-body text-lg md:text-xl max-w-2xl mx-auto leading-relaxed" style="color:rgba(255,255,255,0.55);">
+            Everyone is a unique blend of four personality colors.<br class="hidden sm:block">
+            Discover yours — and transform the way you understand<br class="hidden sm:block">
+            yourself and everyone around you.
+        </p>
+
+        <div class="hero-cta mt-10">
+            <a href="survey.html" class="cta-btn">
+                Take the Assessment
+                <span class="cta-arrow">&#10132;</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="scroll-track">
+            <div class="scroll-dot"></div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ════════════════════ WHAT IS COLOR CHEMISTRY ════════════════════ -->
+<section class="section-glow py-24 md:py-32 px-6">
+    <div class="max-w-5xl mx-auto text-center">
+        <p class="reveal font-body text-sm tracking-[0.25em] uppercase mb-4" style="color:rgba(255,255,255,0.35);">The Science of You</p>
+        <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl font-800 text-white mb-6">
+            Understand Yourself.<br><span style="background:linear-gradient(135deg,#F59E0B,#10B981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Understand Each Other.</span>
+        </h2>
+        <p class="reveal font-body text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-16" style="color:rgba(255,255,255,0.5);">
+            Color Chemistry maps your personality across four dimensions — each represented by a color. No one is just one color. Your unique blend reveals how you think, connect, lead, and love.
+        </p>
+
+        <!-- Four color swatches -->
+        <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+            <div class="reveal reveal-delay-1 flex flex-col items-center gap-4 group">
+                <div class="color-swatch shadow-lg shadow-red-500/20" style="background:#EF4444; color:#EF4444;"></div>
+                <div>
+                    <p class="font-display text-xl font-700 text-white">Bold</p>
+                    <p class="font-body text-sm mt-1" style="color:rgba(255,255,255,0.4);">Driven &middot; Direct &middot; Decisive</p>
                 </div>
-                <h1 class="font-display text-5xl md:text-6xl font-black mb-3 glow-text">
-                    Color <span class="bg-clip-text text-transparent hero-gradient">Chemistry</span>
-                </h1>
-                <p class="text-gray-400 text-sm">Discover the colors that define your personality</p>
             </div>
-
-            <!-- User Selector (shown when users exist on device) -->
-            <div id="userSelector" class="hidden">
-                <p class="text-gray-400 text-sm text-center mb-4">Welcome back! Who's taking the survey?</p>
-                <div id="userList" class="space-y-3 mb-6">
-                    <!-- Populated dynamically -->
-                </div>
-                <div class="text-center">
-                    <button onclick="showRegistration()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-dashed border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-all text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        Someone New
-                    </button>
+            <div class="reveal reveal-delay-2 flex flex-col items-center gap-4 group">
+                <div class="color-swatch shadow-lg shadow-yellow-500/20" style="background:#F59E0B; color:#F59E0B;"></div>
+                <div>
+                    <p class="font-display text-xl font-700 text-white">Bright</p>
+                    <p class="font-body text-sm mt-1" style="color:rgba(255,255,255,0.4);">Expressive &middot; Social &middot; Energetic</p>
                 </div>
             </div>
-
-            <!-- Registration Form -->
-            <div id="registrationForm" class="hidden">
-                <div class="glass rounded-2xl p-8">
-                    <h2 class="text-xl font-bold text-center mb-2">Let's Get Started</h2>
-                    <p class="text-gray-400 text-sm text-center mb-6">Enter your info to begin the personality survey</p>
-
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">First Name</label>
-                                <input type="text" id="regFirstName" placeholder="John"
-                                    class="auth-input w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Last Name</label>
-                                <input type="text" id="regLastName" placeholder="Doe"
-                                    class="auth-input w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">Email Address</label>
-                            <input type="email" id="regEmail" placeholder="john@example.com"
-                                class="auth-input w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm">
-                        </div>
-                        <div id="regError" class="hidden text-red-400 text-xs text-center py-1"></div>
-                        <button id="regSubmitBtn" onclick="submitRegistration()" class="w-full py-3.5 rounded-xl bg-white text-gray-900 font-semibold hover:scale-[1.02] transition-all shadow-lg text-sm">
-                            Send Confirmation Code
-                        </button>
-                    </div>
+            <div class="reveal reveal-delay-3 flex flex-col items-center gap-4 group">
+                <div class="color-swatch shadow-lg shadow-green-500/20" style="background:#10B981; color:#10B981;"></div>
+                <div>
+                    <p class="font-display text-xl font-700 text-white">Steady</p>
+                    <p class="font-body text-sm mt-1" style="color:rgba(255,255,255,0.4);">Loyal &middot; Patient &middot; Supportive</p>
                 </div>
-                <button id="backToSelectorBtn" onclick="showUserSelector()" class="hidden mt-4 mx-auto block text-gray-500 text-sm hover:text-gray-300 transition-colors">
-                    &larr; Back to user list
-                </button>
             </div>
-
-            <!-- Verification Form -->
-            <div id="verificationForm" class="hidden">
-                <div class="glass rounded-2xl p-8 text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </div>
-                    <h2 class="text-xl font-bold mb-2">Look For Your Email</h2>
-                    <p class="text-gray-400 text-sm mb-1">We emailed a 6-digit code to</p>
-                    <p class="text-white font-medium text-sm mb-2" id="verifyEmailDisplay"></p>
-                    <p class="text-yellow-400/80 text-xs mb-5">This may take a couple of minutes. Check your spam folder if you don't see it.</p>
-
-                    <input type="text" id="verifyCode" maxlength="6" placeholder="000000"
-                        class="code-input auth-input w-48 mx-auto block px-4 py-4 rounded-xl bg-white/10 border border-white/10 text-white text-center text-2xl font-bold placeholder-gray-600 focus:outline-none focus:border-indigo-500"
-                        oninput="this.value=this.value.replace(/\D/g,''); if(this.value.length===6) verifyCode();">
-
-                    <div id="verifyError" class="hidden text-red-400 text-xs mt-3"></div>
-                    <div id="verifySpinner" class="hidden mt-4"><div class="spinner mx-auto"></div></div>
-
-                    <p class="text-gray-500 text-xs mt-6">Code not showing up?
-                        <button onclick="resendCode()" class="text-indigo-400 hover:text-indigo-300 transition-colors">Resend</button>
-                    </p>
+            <div class="reveal reveal-delay-4 flex flex-col items-center gap-4 group">
+                <div class="color-swatch shadow-lg shadow-blue-500/20" style="background:#3B82F6; color:#3B82F6;"></div>
+                <div>
+                    <p class="font-display text-xl font-700 text-white">Deep</p>
+                    <p class="font-body text-sm mt-1" style="color:rgba(255,255,255,0.4);">Analytical &middot; Precise &middot; Thoughtful</p>
                 </div>
-                <button onclick="showRegistration()" class="mt-4 mx-auto block text-gray-500 text-sm hover:text-gray-300 transition-colors">
-                    &larr; Change email
-                </button>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ===== HERO SECTION ===== -->
-    <section id="hero" class="hidden relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div class="orb orb-red w-72 h-72 top-[10%] left-[10%]"></div>
-        <div class="orb orb-yellow w-96 h-96 top-[60%] right-[5%]"></div>
-        <div class="orb orb-green w-64 h-64 bottom-[10%] left-[30%]"></div>
-        <div class="orb orb-blue w-80 h-80 top-[20%] right-[25%]"></div>
-        <div id="particles" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
 
-        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
-            <!-- User greeting badge -->
-            <div id="userGreeting" class="mb-8">
-                <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full glass text-sm">
-                    <span id="userAvatarSmall" class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"></span>
-                    <span>Welcome, <strong id="heroUserName" class="text-white"></strong></span>
-                    <button onclick="switchUser()" class="ml-2 text-gray-400 hover:text-white transition-colors text-xs underline">Switch</button>
-                </span>
+<!-- ════════════════════ WHO IS THIS FOR ════════════════════ -->
+<section class="section-glow py-24 md:py-32 px-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <p class="reveal font-body text-sm tracking-[0.25em] uppercase mb-4" style="color:rgba(255,255,255,0.35);">For Every Relationship</p>
+            <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl font-800 text-white">
+                This Is For <em class="italic" style="background:linear-gradient(135deg,#EF4444,#F59E0B,#10B981,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Everyone</em>
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+            <div class="reveal reveal-delay-1 glass audience-card p-7" style="--glow-color:rgba(239,68,68,0.06);">
+                <div class="text-3xl mb-4">&#10084;&#65039;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Married Couples</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Decode the differences that create friction — and turn them into your greatest strengths together.</p>
             </div>
 
-            <div class="flex justify-center gap-4 mb-8 stagger-in">
-                <div class="w-4 h-4 rounded-full bg-red-500 animate-bounce" style="animation-delay:0s"></div>
-                <div class="w-4 h-4 rounded-full bg-yellow-500 animate-bounce" style="animation-delay:0.2s"></div>
-                <div class="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style="animation-delay:0.4s"></div>
-                <div class="w-4 h-4 rounded-full bg-blue-500 animate-bounce" style="animation-delay:0.6s"></div>
+            <div class="reveal reveal-delay-2 glass audience-card p-7" style="--glow-color:rgba(245,158,11,0.06);">
+                <div class="text-3xl mb-4">&#10024;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Dating Couples</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Explore compatibility early. Understand what makes each other tick before patterns become problems.</p>
             </div>
 
-            <h1 class="font-display text-6xl md:text-8xl font-black mb-6 glow-text leading-tight">
-                Color<br>
-                <span class="bg-clip-text text-transparent hero-gradient">Chemistry</span>
-            </h1>
+            <div class="reveal reveal-delay-3 glass audience-card p-7" style="--glow-color:rgba(16,185,129,0.06);">
+                <div class="text-3xl mb-4">&#128188;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Co-Workers</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Build trust and reduce conflict. When teams understand each other's wiring, collaboration flows.</p>
+            </div>
 
-            <p class="text-xl md:text-2xl text-gray-300 font-light mb-4 max-w-2xl mx-auto leading-relaxed">
-                Uncover the colors that shape who you are
-            </p>
-            <p class="text-base text-gray-500 mb-12 max-w-xl mx-auto">
-                A personality color assessment. Answer 12 quick questions to reveal your unique blend of characteristics.
-            </p>
+            <div class="reveal reveal-delay-4 glass audience-card p-7" style="--glow-color:rgba(59,130,246,0.06);">
+                <div class="text-3xl mb-4">&#128106;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Parents & Children</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Bridge generational gaps with empathy. See your child's behavior through the lens of their colors.</p>
+            </div>
 
-            <!-- Show previous results if they exist -->
-            <div id="previousResults" class="hidden mb-10">
-                <div class="glass rounded-2xl p-6 max-w-md mx-auto mb-6">
-                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-3">Your Last Assessment</p>
-                    <div class="flex justify-center gap-4" id="prevResultBadges"></div>
+            <div class="reveal reveal-delay-5 glass audience-card p-7" style="--glow-color:rgba(239,68,68,0.06);">
+                <div class="text-3xl mb-4">&#127891;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Teachers & Students</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Create classroom harmony by understanding how every student is wired to learn and engage.</p>
+            </div>
+
+            <div class="reveal reveal-delay-6 glass audience-card p-7" style="--glow-color:rgba(245,158,11,0.06);">
+                <div class="text-3xl mb-4">&#9917;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Sports Teams</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Chemistry wins championships. Help players and coaches communicate, motivate, and gel as one.</p>
+            </div>
+
+            <div class="reveal reveal-delay-7 glass audience-card p-7" style="--glow-color:rgba(16,185,129,0.06);">
+                <div class="text-3xl mb-4">&#127970;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Corporations</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Transform culture from the inside out. Scale empathy across departments, teams, and leadership.</p>
+            </div>
+
+            <div class="reveal reveal-delay-8 glass audience-card p-7" style="--glow-color:rgba(59,130,246,0.06);">
+                <div class="text-3xl mb-4">&#129309;</div>
+                <h3 class="font-display text-lg font-700 text-white mb-2">Friend Groups</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Deepen bonds by discovering why you click with some friends instantly — and clash with others.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ════════════════════ HOW IT WORKS ════════════════════ -->
+<section class="section-glow py-24 md:py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-20">
+            <p class="reveal font-body text-sm tracking-[0.25em] uppercase mb-4" style="color:rgba(255,255,255,0.35);">Simple &amp; Powerful</p>
+            <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl font-800 text-white">
+                Three Steps to <span style="background:linear-gradient(135deg,#10B981,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Clarity</span>
+            </h2>
+        </div>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+            <!-- Connector lines (desktop) -->
+            <div class="step-connector hidden md:block"></div>
+            <div class="step-connector step-connector-2 hidden md:block"></div>
+
+            <div class="reveal reveal-delay-1 glass p-8 pt-14 text-center relative overflow-hidden">
+                <div class="step-number">01</div>
+                <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:linear-gradient(135deg,#EF4444,#F59E0B);">
+                    <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
                 </div>
-                <button id="viewResultsBtn" onclick="showSavedResults()" class="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-gray-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 shadow-2xl shadow-white/10 hover:shadow-white/20 mx-auto">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    View My Results
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                </button>
+                <h3 class="font-display text-xl font-700 text-white mb-3">Take the Assessment</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Answer a short series of questions. No right or wrong answers — just honest reactions. Takes about 5 minutes.</p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="startSurvey()" class="group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-gray-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 shadow-2xl shadow-white/10 hover:shadow-white/20" id="startSurveyBtn">
-                    <span id="startBtnText">Start Your Assessment</span>
-                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </button>
+            <div class="reveal reveal-delay-2 glass p-8 pt-14 text-center relative overflow-hidden">
+                <div class="step-number">02</div>
+                <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:linear-gradient(135deg,#F59E0B,#10B981);">
+                    <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M2 12h20"/></svg>
+                </div>
+                <h3 class="font-display text-xl font-700 text-white mb-3">Discover Your Colors</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">See your unique personality color blend — a visual map of how you think, communicate, and connect with others.</p>
             </div>
 
-            <div class="mt-16 flex justify-center gap-8 text-sm text-gray-600">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    3 minutes
-                </span>
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    12 questions
-                </span>
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Instant results
-                </span>
+            <div class="reveal reveal-delay-3 glass p-8 pt-14 text-center relative overflow-hidden">
+                <div class="step-number">03</div>
+                <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:linear-gradient(135deg,#10B981,#3B82F6);">
+                    <svg width="28" height="28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 class="font-display text-xl font-700 text-white mb-3">Transform Relationships</h3>
+                <p class="font-body text-sm leading-relaxed" style="color:rgba(255,255,255,0.45);">Share results with partners, teammates, or family. Use your new language of color to communicate with empathy.</p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ===== SURVEY SECTION ===== -->
-    <section id="survey" class="hidden min-h-screen relative py-12 px-4 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950"></div>
-        <div class="orb orb-blue w-96 h-96 top-[20%] right-[-10%] opacity-20"></div>
-        <div class="orb orb-green w-72 h-72 bottom-[10%] left-[-5%] opacity-20"></div>
 
-        <div class="relative z-10 max-w-3xl mx-auto">
-            <!-- User bar -->
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-2">
-                    <span id="surveyAvatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"></span>
-                    <span class="text-sm text-gray-400"><span id="surveyUserName" class="text-white font-medium"></span>'s Assessment</span>
-                </div>
-                <button onclick="switchUser()" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">Switch user</button>
-            </div>
+<!-- ════════════════════ TESTIMONIALS ════════════════════ -->
+<section class="section-glow py-24 md:py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+            <p class="reveal font-body text-sm tracking-[0.25em] uppercase mb-4" style="color:rgba(255,255,255,0.35);">Real Stories</p>
+            <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl font-800 text-white">
+                Colors Changed <span style="background:linear-gradient(135deg,#EF4444,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Everything</span>
+            </h2>
+        </div>
 
-            <!-- Progress bar -->
-            <div class="mb-8">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-sm font-medium text-gray-400">Question <span id="questionNum">1</span> of 12</span>
-                    <span class="text-sm font-medium text-gray-400"><span id="progressPercent">0</span>%</span>
-                </div>
-                <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div id="progressBar" class="h-full rounded-full hero-gradient transition-all duration-700 ease-out" style="width: 0%"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="reveal reveal-delay-1 glass p-8 relative">
+                <div class="quote-mark">&ldquo;</div>
+                <p class="font-body text-sm leading-relaxed relative z-10 mt-8 mb-6" style="color:rgba(255,255,255,0.55);">My husband and I were stuck in the same arguments for years. Once we saw each other's colors, it was like someone turned the lights on. We finally <em>got</em> each other.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-body font-600 text-white" style="background:linear-gradient(135deg,#10B981,#3B82F6);">JR</div>
+                    <div>
+                        <p class="font-body text-sm font-600 text-white">Jessica R.</p>
+                        <p class="font-body text-xs" style="color:rgba(255,255,255,0.35);">Married 12 years</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Instructions -->
-            <div class="glass rounded-2xl p-6 mb-8">
-                <p class="text-gray-300 text-center text-sm md:text-base">
-                    Score each quality from <strong class="text-white">4</strong> (closest match) to <strong class="text-white">1</strong> (least like you).
-                    <br class="hidden md:block">Each number can only be used once per question.
-                </p>
+            <div class="reveal reveal-delay-2 glass p-8 relative">
+                <div class="quote-mark">&ldquo;</div>
+                <p class="font-body text-sm leading-relaxed relative z-10 mt-8 mb-6" style="color:rgba(255,255,255,0.55);">We rolled this out to our entire sales team. Communication improved overnight. People stopped taking things personally because they understood <em>why</em> their colleagues operated differently.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-body font-600 text-white" style="background:linear-gradient(135deg,#EF4444,#F59E0B);">MT</div>
+                    <div>
+                        <p class="font-body text-sm font-600 text-white">Marcus T.</p>
+                        <p class="font-body text-xs" style="color:rgba(255,255,255,0.35);">VP of Sales, Tech Startup</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Question container -->
-            <div id="questionContainer" class="space-y-4"></div>
-
-            <!-- Navigation -->
-            <div class="flex justify-between items-center mt-10">
-                <button id="prevBtn" onclick="prevQuestion()" class="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-all disabled:opacity-30 disabled:cursor-not-allowed" disabled>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Previous
-                </button>
-                <button id="nextBtn" onclick="nextQuestion()" class="flex items-center gap-2 px-8 py-3 rounded-xl bg-white text-gray-900 font-semibold hover:scale-105 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg" disabled>
-                    <span id="nextBtnText">Next</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
+            <div class="reveal reveal-delay-3 glass p-8 relative">
+                <div class="quote-mark">&ldquo;</div>
+                <p class="font-body text-sm leading-relaxed relative z-10 mt-8 mb-6" style="color:rgba(255,255,255,0.55);">I used to clash with my teenage daughter constantly. Turns out she's a strong Red and I'm a deep Blue — we were speaking completely different languages. Now we meet in the middle.</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-body font-600 text-white" style="background:linear-gradient(135deg,#3B82F6,#10B981);">DK</div>
+                    <div>
+                        <p class="font-body text-sm font-600 text-white">Dana K.</p>
+                        <p class="font-body text-xs" style="color:rgba(255,255,255,0.35);">Mother of three</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- ===== RESULTS SECTION ===== -->
-    <section id="results" class="hidden min-h-screen relative py-16 px-4 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950"></div>
 
-        <div class="relative z-10 max-w-4xl mx-auto">
-            <!-- User bar -->
-            <div class="flex items-center justify-center gap-2 mb-10">
-                <span id="resultsAvatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"></span>
-                <span class="text-gray-400 text-sm"><span id="resultsUserName" class="text-white font-medium"></span>'s Results</span>
-            </div>
-
-            <!-- Results header -->
-            <div id="resultsHeader" class="text-center mb-16">
-                <p class="text-gray-400 text-lg mb-4 tracking-wider uppercase">Your Personal Color Profile</p>
-                <h2 class="font-display text-5xl md:text-7xl font-black mb-6">
-                    You are
-                    <span id="dominantColorText" class="bg-clip-text text-transparent hero-gradient">...</span>
-                </h2>
-                <p id="dominantDesc" class="text-gray-400 text-lg max-w-xl mx-auto"></p>
-            </div>
-
-            <!-- Color wheel -->
-            <div id="colorWheel" class="flex justify-center mb-16">
-                <div class="relative w-72 h-72 md:w-96 md:h-96 color-wheel">
-                    <canvas id="wheelCanvas" width="400" height="400" class="w-full h-full"></canvas>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="glass rounded-full w-32 h-32 md:w-40 md:h-40 flex items-center justify-center flex-col">
-                            <span class="text-4xl md:text-5xl font-black" id="totalScore">120</span>
-                            <span class="text-xs text-gray-400 uppercase tracking-wider">Total</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Score bars -->
-            <div id="scoreBars" class="space-y-6 mb-16 max-w-2xl mx-auto">
-                <div class="reveal">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-red-500"></div>
-                            <span class="font-semibold text-lg">Red</span>
-                        </div>
-                        <span class="text-2xl font-black text-red-400" id="scoreRed">0</span>
-                    </div>
-                    <div class="h-4 bg-gray-800 rounded-full overflow-hidden">
-                        <div id="barRed" class="result-bar h-full rounded-full bg-gradient-to-r from-red-600 to-red-400" style="width: 0%"></div>
-                    </div>
-                </div>
-                <div class="reveal">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-yellow-500"></div>
-                            <span class="font-semibold text-lg">Yellow</span>
-                        </div>
-                        <span class="text-2xl font-black text-yellow-400" id="scoreYellow">0</span>
-                    </div>
-                    <div class="h-4 bg-gray-800 rounded-full overflow-hidden">
-                        <div id="barYellow" class="result-bar h-full rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400" style="width: 0%"></div>
-                    </div>
-                </div>
-                <div class="reveal">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
-                            <span class="font-semibold text-lg">Green</span>
-                        </div>
-                        <span class="text-2xl font-black text-emerald-400" id="scoreGreen">0</span>
-                    </div>
-                    <div class="h-4 bg-gray-800 rounded-full overflow-hidden">
-                        <div id="barGreen" class="result-bar h-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-400" style="width: 0%"></div>
-                    </div>
-                </div>
-                <div class="reveal">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full bg-blue-500"></div>
-                            <span class="font-semibold text-lg">Blue</span>
-                        </div>
-                        <span class="text-2xl font-black text-blue-400" id="scoreBlue">0</span>
-                    </div>
-                    <div class="h-4 bg-gray-800 rounded-full overflow-hidden">
-                        <div id="barBlue" class="result-bar h-full rounded-full bg-gradient-to-r from-blue-600 to-blue-400" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Paywall Card (shown when not paid) -->
-            <div id="paywallCard" class="hidden mb-16 reveal">
-                <div class="glass rounded-3xl p-8 md:p-12 text-center border border-indigo-500/20 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-pink-500/5"></div>
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-display text-3xl font-black mb-3">Unlock Your Full Report</h3>
-                        <p class="text-gray-400 max-w-md mx-auto mb-8">
-                            Get your complete personality color breakdown with videos,
-                            detailed descriptions, strengths, growth areas, and connection tips.
-                        </p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-lg mx-auto">
-                            <div class="text-center"><div class="text-2xl mb-1">&#127916;</div><p class="text-xs text-gray-400">5 Videos</p></div>
-                            <div class="text-center"><div class="text-2xl mb-1">&#128202;</div><p class="text-xs text-gray-400">Full Profiles</p></div>
-                            <div class="text-center"><div class="text-2xl mb-1">&#128161;</div><p class="text-xs text-gray-400">Growth Tips</p></div>
-                            <div class="text-center"><div class="text-2xl mb-1">&#129309;</div><p class="text-xs text-gray-400">Connection Guide</p></div>
-                        </div>
-                        <button id="unlockBtn" onclick="startPayment()"
-                            class="inline-flex items-center gap-3 px-10 py-4 bg-white text-gray-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-2xl shadow-white/10 hover:shadow-white/20">
-                            <span>Unlock Full Report</span>
-                            <span class="text-gray-500">$4.99</span>
-                        </button>
-                        <p class="text-gray-600 text-xs mt-4">Secure payment via Stripe. One-time purchase, never expires.</p>
-                        <div class="mt-6">
-                            <button onclick="document.getElementById('accessCodeArea').classList.toggle('hidden')" class="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">Have an access code?</button>
-                            <div id="accessCodeArea" class="hidden mt-3 flex items-center justify-center gap-2">
-                                <input id="accessCodeInput" type="text" placeholder="Enter code" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-center text-sm w-40 focus:outline-none focus:border-indigo-500">
-                                <button id="accessCodeBtn" onclick="redeemAccessCode()" class="px-4 py-2 rounded-xl bg-indigo-500 text-white text-sm font-semibold hover:bg-indigo-400 transition-colors">Unlock</button>
-                            </div>
-                            <p id="accessCodeError" class="text-red-400 text-xs mt-2 hidden"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Paid Content (hidden until paid) -->
-            <div id="paidContent" class="hidden">
-                <!-- Video Section -->
-                <div id="videoSection" class="mb-16 reveal">
-                    <div class="text-center mb-10">
-                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
-                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span class="text-sm font-medium text-gray-300 tracking-wide uppercase">Featured Videos</span>
-                        </div>
-                        <h3 class="font-display text-3xl md:text-4xl font-black mb-3">Watch Your Color <span class="bg-clip-text text-transparent hero-gradient">Come to Life</span></h3>
-                        <p class="text-gray-400 max-w-lg mx-auto">Gain a richer understanding of your personality through these brief videos</p>
-                    </div>
-                    <div id="videoContainer"></div>
-                </div>
-
-                <!-- Personality Descriptions -->
-                <div class="mb-16">
-                    <h3 class="text-center text-2xl font-bold mb-8 text-gray-300">Understanding Your Colors</h3>
-                    <div id="descriptions" class="grid md:grid-cols-2 gap-6"></div>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="text-center flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="retakeSurvey()" class="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl border-2 border-gray-700 text-gray-300 font-semibold hover:border-white hover:text-white transition-all duration-300">
-                    <svg class="w-5 h-5 group-hover:-rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    Take It Again
-                </button>
-                <button onclick="switchUser()" class="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl border-2 border-gray-700 text-gray-300 font-semibold hover:border-white hover:text-white transition-all duration-300">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Change Person
-                </button>
-            </div>
+<!-- ════════════════════ FINAL CTA ════════════════════ -->
+<section class="final-cta-section py-28 md:py-40 px-6">
+    <div class="max-w-3xl mx-auto text-center relative z-10">
+        <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-900 text-white leading-tight mb-6">
+            Ready to See Your<br><em class="italic" style="background:linear-gradient(135deg,#EF4444,#F59E0B,#10B981,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">True Colors</em>?
+        </h2>
+        <p class="reveal font-body text-base md:text-lg mb-10" style="color:rgba(255,255,255,0.45);">
+            Five minutes. Four colors. One breakthrough in how you relate to everyone around you.
+        </p>
+        <div class="reveal">
+            <a href="survey.html" class="cta-btn text-lg">
+                Take the Assessment Now
+                <span class="cta-arrow">&#10132;</span>
+            </a>
         </div>
-    </section>
+    </div>
+</section>
 
-    <footer class="relative z-10 py-8 text-center text-gray-600 text-sm border-t border-gray-800/50">
-        <p>Color Chemistry &mdash; Personality Color Assessment</p>
-    </footer>
+
+<!-- ════════════════════ FOOTER ════════════════════ -->
+<footer class="py-10 px-6 border-t" style="border-color:rgba(255,255,255,0.05);">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="font-display text-lg font-700">
+            <span style="color:#EF4444;">C</span><span style="color:#F59E0B;">o</span><span style="color:#10B981;">l</span><span style="color:#3B82F6;">o</span><span style="color:#EF4444;">r</span>
+            <span class="text-white ml-1">Chemistry</span>
+        </p>
+        <p class="font-body text-xs" style="color:rgba(255,255,255,0.25);">&copy; 2026 Color Chemistry. All rights reserved.</p>
+    </div>
+</footer>
+
 
 <script>
-// ============================================================
-// SURVEY DATA
-// ============================================================
-const questions = [
-    { traits: ["Ambitious, Intentional, Hard-Working", "Influential, Compelling", "Warm, Tender-Hearted", "Unassuming, Quiet, Understated"], colors: ["red","yellow","green","blue"] },
-    { traits: ["Magnetic, Draws People In, Sociable", "Genuine, Agreeable", "Methodical, Evidence-Based", "Straightforward, Commanding"], colors: ["yellow","green","blue","red"] },
-    { traits: ["Dedicated, Steadfast, Committed", "Cooperative, Supportive, Diplomatic", "Decisive, Resolute in Choices", "Fun-Loving, Light-Hearted"], colors: ["green","blue","red","yellow"] },
-    { traits: ["Meticulous, Thorough, Detail-Oriented", "Fearless, Courageous, Audacious", "Expressive, Conversational", "Composed, Mellow, Hard to Rattle"], colors: ["blue","red","yellow","green"] },
-    { traits: ["Driven to Succeed, Victory-Minded", "Encouraging, Uplifting", "Thoughtful, Compassionate, Attentive", "Prudent, Watchful, Measured, Guarded"], colors: ["red","yellow","green","blue"] },
-    { traits: ["Center of Attention, Social, Amusing", "Unhurried, Consistent, Understanding", "Reflective, Earnest", "Self-Reliant, Autonomous"], colors: ["yellow","green","blue","red"] },
-    { traits: ["Traditional, Appreciates Structure", "Measured, Composed, Disciplined", "Daring, Open to New Experiences", "Vibrant, Animated, Spirited"], colors: ["green","blue","red","yellow"] },
-    { traits: ["Structured, Self-Governed", "Initiator, Springs into Motion", "Skips the Fine Print", "Content, At Ease, Fulfilled"], colors: ["blue","red","yellow","green"] },
-    { traits: ["Relentless, Never Gives Up", "Craves Variety, Welcomes New Routines", "Approachable, Laid-Back, Personable", "Rational"], colors: ["red","yellow","green","blue"] },
-    { traits: ["Blends In Naturally, Enjoys Company", "Flexible, Eager to Assist, Always Ready", "Time-Conscious", "Restless, Finds It Hard to Unwind"], colors: ["yellow","green","blue","red"] },
-    { traits: ["Forgiving, Open-Minded, Accepting of Others", "Thorough, Fact-Driven, Precise", "Self-Assured, Unflinching", "Well-Liked, Admired by Many"], colors: ["green","blue","red","yellow"] },
-    { traits: ["Systematic, Tidy, Well-Arranged", "Bold, Pushes Forward", "Hopeful, Sees the Bright Side", "Undemanding, Introverted"], colors: ["blue","red","yellow","green"] }
-];
-
-const colorDescriptions = {
-    red: {
-        name: "Red", tagline: "The Ambitious Trailblazer",
-        bg: "from-red-500/20 to-red-900/20", border: "border-red-500/30",
-        text: "text-red-400", dot: "bg-red-500",
-        positive: ["Deep hunger to achieve and leave a lasting mark on the world","Strong need to be self-sufficient and earn their way","Crave full authority over their own path","Laser-focused on objectives","Excel at turning concepts into reality \u2014 hand them a vision and they\u2019ll make it happen","Gifted at recognizing hidden talent in others and unlocking it","Natural commanders who step up without hesitation"],
-        negative: ["Can overlook the feelings of those around them","Overbearing, forceful \u2014 refuse to let obstacles stand in their way","Struggle to place trust in other people","Enjoy claiming recognition \u2014 believe they have all the answers","Dislike tedious specifics \u2014 view them as wasted effort","Tend to drive others relentlessly \u2014 won\u2019t accept \u201Cno\u201D as a response"],
-        needs: ["Use thoughtful questions to help them see the reason for a shift","Spark their competitive spirit","Invite them into the bigger picture","Allow them to arrive at their own conclusions","Be brief and get straight to the heart of it","Recognize their efforts publicly"]
-    },
-    yellow: {
-        name: "Yellow", tagline: "The Energetic Motivator",
-        bg: "from-yellow-500/20 to-amber-900/20", border: "border-yellow-500/30",
-        text: "text-yellow-400", dot: "bg-yellow-500",
-        positive: ["Joyful, upbeat individuals","Love performing and engaging \u2014 equally happy speaking or hearing others out","Generous in spirit \u2014 find joy in both giving and receiving","Exceptional interpersonal abilities \u2014 thrive when meeting new faces","Passionate about lifting people\u2019s spirits","Flourish as their circle of relationships grows","Outgoing by nature, fueled by the energy of a crowd"],
-        negative: ["Lose interest rapidly","Steer clear of physical and emotional discomfort","Attention wanders quickly","Walk away from a task once it stops being enjoyable","Can be self-focused \u2014 \u201CMy needs come first\u201D","Inclined to brush aside anything unpleasant"],
-        needs: ["Show how the shift will enhance their reputation","Introduce fresh concepts with genuine excitement","Back them up with steady dependability","Keep the experience enjoyable","Celebrate milestones and finished work","Offer space to reflect, but always circle back","Host a celebration!"]
-    },
-    green: {
-        name: "Green", tagline: "The Reliable Harmonizer",
-        bg: "from-emerald-500/20 to-emerald-900/20", border: "border-emerald-500/30",
-        text: "text-emerald-400", dot: "bg-emerald-500",
-        positive: ["Serene, friendly, and well-regarded by those around them","Grounded and practical","Skillful with specifics and fine points","When they feel safe and at ease, they openly share their thoughts","Possess a rare gift for transforming lives because they truly pay attention","Inventive when it comes to finding solutions","Driven by a deep wish to keep everyone around them satisfied"],
-        negative: ["Reluctant to pick a side","Would rather remain neutral than speak their mind","May express frustration indirectly rather than openly"],
-        needs: ["Help them recognize why a shift matters","Demonstrate how it conserves time, effort, and resources","Guide them toward making a firm commitment","Bolster them with genuine encouragement","Acknowledge their finished work","Pose questions to uncover what they truly require","Remind them that ownership of the choice belongs to them"]
-    },
-    blue: {
-        name: "Blue", tagline: "The Careful Examiner",
-        bg: "from-blue-500/20 to-blue-900/20", border: "border-blue-500/30",
-        text: "text-blue-400", dot: "bg-blue-500",
-        positive: ["Deeply invested in their choices and circumstances","Perceptive and emotionally aware","Prefer meaningful, personal conversations","Highly selective about their work and inner circle","Recharge in solitude \u2014 draw strength from quiet time alone","Thrive on data and retain specifics with remarkable accuracy","Own their obligations and always follow through"],
-        negative: ["Guard their inner world closely, revealing only a fraction of themselves","Prone to self-sacrifice \u2014 may play the role of the sufferer","Highly sensitive \u2014 can be wounded by even small remarks","Often struggle to receive feedback gracefully","Susceptible to periods of low mood","Find it difficult to let go of past grievances"],
-        needs: ["Outline clear reasons why a change serves their interests","Provide ample time for them to process and deliberate","Supply a concrete roadmap of next steps","Honor your commitments to them without fail","Express gratitude in a private, personal way","Deliver premium resources and reliable support","Address every inquiry with solid evidence and facts"]
-    }
-};
-
-// ============================================================
-// STATE
-// ============================================================
-let currentQuestion = 0;
-let answers = Array.from({ length: 12 }, () => [0, 0, 0, 0]);
-let currentUser = null; // { firstName, lastName, email, verifiedAt, results }
-let pendingReg = {}; // temp storage during registration flow
-
-const STORAGE_KEY = 'colorChemistry_users';
-const COOKIE_KEY = 'colorChemistry_users';
-const COOKIE_DAYS = 365;
-const PAID_STORAGE_KEY = 'colorChemistry_paid';
-let userHasPaid = false;
-
-// Migrate data from old keys
-(function() {
-    try {
-        const old1 = localStorage.getItem('dynamicTraits_users');
-        if (old1 && !localStorage.getItem(STORAGE_KEY)) {
-            localStorage.setItem(STORAGE_KEY, old1);
+    // ── Particle generator ──
+    (function() {
+        const field = document.getElementById('particleField');
+        const colors = ['#EF4444','#F59E0B','#10B981','#3B82F6'];
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.bottom = '-10px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (8 + Math.random() * 12) + 's';
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            p.style.width = (2 + Math.random() * 3) + 'px';
+            p.style.height = p.style.width;
+            field.appendChild(p);
         }
-        localStorage.removeItem('dynamicTraits_users');
-        const old2 = localStorage.getItem('colorSurvey_users');
-        if (old2 && !localStorage.getItem(STORAGE_KEY)) {
-            localStorage.setItem(STORAGE_KEY, old2);
-        }
-        localStorage.removeItem('colorSurvey_users');
-    } catch {}
-})();
+    })();
 
-// ============================================================
-// COOKIE HELPERS
-// ============================================================
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + days * 86400000);
-    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
-}
-
-function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-}
-
-// ============================================================
-// PAYMENT HELPERS
-// ============================================================
-function getLocalPaidStatus(email) {
-    try {
-        const paid = JSON.parse(localStorage.getItem(PAID_STORAGE_KEY) || '{}');
-        return !!paid[email.toLowerCase()];
-    } catch { return false; }
-}
-
-function setLocalPaidStatus(email) {
-    try {
-        const paid = JSON.parse(localStorage.getItem(PAID_STORAGE_KEY) || '{}');
-        paid[email.toLowerCase()] = true;
-        localStorage.setItem(PAID_STORAGE_KEY, JSON.stringify(paid));
-    } catch {}
-}
-
-async function checkPaymentStatus(email, sessionId) {
-    try {
-        let url = 'api/check-payment.php?email=' + encodeURIComponent(email);
-        if (sessionId) url += '&session_id=' + encodeURIComponent(sessionId);
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (data.paid) {
-            setLocalPaidStatus(email);
-            return true;
-        }
-    } catch {}
-    return getLocalPaidStatus(email);
-}
-
-async function startPayment() {
-    if (!currentUser || !currentUser.email) return;
-    const btn = document.getElementById('unlockBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Redirecting to checkout...';
-    try {
-        const resp = await fetch('api/create-checkout.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email })
-        });
-        const data = await resp.json();
-        if (data.already_paid) {
-            userHasPaid = true;
-            setLocalPaidStatus(currentUser.email);
-            unlockPaidContent();
-            return;
-        }
-        if (data.checkout_url) {
-            window.location.href = data.checkout_url;
-        } else {
-            throw new Error(data.error || 'Failed to create checkout');
-        }
-    } catch (err) {
-        btn.disabled = false;
-        btn.innerHTML = '<span>Unlock Full Report</span><span class="text-gray-500">$4.99</span>';
-        alert('Something went wrong. Please try again.');
-    }
-}
-
-async function redeemAccessCode() {
-    if (!currentUser || !currentUser.email) return;
-    const input = document.getElementById('accessCodeInput');
-    const errEl = document.getElementById('accessCodeError');
-    const btn = document.getElementById('accessCodeBtn');
-    const code = input.value.trim();
-    if (!code) return;
-
-    btn.disabled = true;
-    btn.textContent = '...';
-    errEl.classList.add('hidden');
-
-    try {
-        const resp = await fetch('api/redeem-code.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email, code: code })
-        });
-        const data = await resp.json();
-        if (data.success) {
-            userHasPaid = true;
-            setLocalPaidStatus(currentUser.email);
-            unlockPaidContent();
-        } else {
-            errEl.textContent = data.error || 'Invalid code';
-            errEl.classList.remove('hidden');
-        }
-    } catch {
-        errEl.textContent = 'Something went wrong. Try again.';
-        errEl.classList.remove('hidden');
-    }
-    btn.disabled = false;
-    btn.textContent = 'Unlock';
-}
-
-function unlockPaidContent() {
-    document.getElementById('paywallCard').classList.add('hidden');
-    document.getElementById('paidContent').classList.remove('hidden');
-    // Render content if not already rendered
-    if (currentUser && currentUser.results) {
-        const scores = currentUser.results;
-        const dominant = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-        renderDescriptions(scores, dominant);
-        renderVideos(dominant);
-        // Trigger reveal animations
-        setTimeout(() => {
-            document.querySelectorAll('.reveal').forEach((el, i) => {
-                setTimeout(() => el.classList.add('visible'), i * 200);
-            });
-        }, 300);
-    }
-}
-
-function lockPaidContent() {
-    document.getElementById('paywallCard').classList.remove('hidden');
-    document.getElementById('paidContent').classList.add('hidden');
-}
-
-// ============================================================
-// LOCAL STORAGE HELPERS (with cookie backup)
-// ============================================================
-function getStoredUsers() {
-    try {
-        const ls = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (ls && ls.length > 0) return ls;
-    } catch {}
-    // Fallback: restore from cookie
-    try {
-        const ck = getCookie(COOKIE_KEY);
-        if (ck) {
-            const users = JSON.parse(ck);
-            if (users && users.length > 0) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-                return users;
-            }
-        }
-    } catch {}
-    return [];
-}
-
-function saveUsers(users) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    setCookie(COOKIE_KEY, JSON.stringify(users), COOKIE_DAYS);
-}
-
-function findUserIndex(email) {
-    return getStoredUsers().findIndex(u => u.email.toLowerCase() === email.toLowerCase());
-}
-
-function saveCurrentUserResults(scores) {
-    if (!currentUser) return;
-    const users = getStoredUsers();
-    const idx = findUserIndex(currentUser.email);
-    if (idx !== -1) {
-        users[idx].results = scores;
-        users[idx].lastSurvey = new Date().toISOString();
-        saveUsers(users);
-    }
-}
-
-function getAvatarClass(idx) {
-    return 'avatar-gradient-' + (idx % 5);
-}
-
-function getInitials(user) {
-    return (user.firstName[0] + user.lastName[0]).toUpperCase();
-}
-
-// ============================================================
-// PARTICLES
-// ============================================================
-function createParticles(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container || container.children.length > 0) return;
-    const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'];
-    for (let i = 0; i < 30; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.top = (80 + Math.random() * 20) + '%';
-        p.style.background = colors[Math.floor(Math.random() * 4)];
-        p.style.animationDuration = (6 + Math.random() * 10) + 's';
-        p.style.animationDelay = Math.random() * 10 + 's';
-        p.style.width = (3 + Math.random() * 5) + 'px';
-        p.style.height = p.style.width;
-        container.appendChild(p);
-    }
-}
-createParticles('authParticles');
-
-// ============================================================
-// AUTH FLOW
-// ============================================================
-async function initApp() {
-    // Check for Stripe redirect
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get('payment');
-    const sessionId = urlParams.get('session_id');
-
-    if (paymentStatus === 'success' && sessionId) {
-        window.history.replaceState({}, '', window.location.pathname);
-        const users = getStoredUsers();
-        if (users.length > 0) {
-            // Find most recent user — likely the one who just paid
-            currentUser = users[users.length - 1];
-            const paid = await checkPaymentStatus(currentUser.email, sessionId);
-            if (paid) {
-                userHasPaid = true;
-                enterApp();
-                if (currentUser.results) {
-                    showSection('results');
-                    displayResults(currentUser.results);
+    // ── Intersection Observer for scroll reveals ──
+    (function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
                 }
-                return;
-            }
-        }
-    }
-
-    if (paymentStatus === 'cancelled') {
-        window.history.replaceState({}, '', window.location.pathname);
-    }
-
-    const users = getStoredUsers();
-    if (users.length > 0) {
-        showUserSelector();
-    } else {
-        showRegistration();
-    }
-}
-
-function showSection(id) {
-    ['auth', 'hero', 'survey', 'results'].forEach(s => {
-        document.getElementById(s).classList.add('hidden');
-    });
-    document.getElementById(id).classList.remove('hidden');
-}
-
-function showUserSelector() {
-    const users = getStoredUsers();
-    if (users.length === 0) {
-        showRegistration();
-        return;
-    }
-
-    showSection('auth');
-    document.getElementById('userSelector').classList.remove('hidden');
-    document.getElementById('registrationForm').classList.add('hidden');
-    document.getElementById('verificationForm').classList.add('hidden');
-
-    const list = document.getElementById('userList');
-    list.innerHTML = '';
-
-    users.forEach((user, idx) => {
-        const card = document.createElement('button');
-        card.className = 'user-card w-full flex items-center gap-4 p-4 rounded-2xl glass text-left hover:bg-white/10 transition-all';
-        card.onclick = () => selectUser(idx);
-
-        const hasResults = !!user.results;
-        const dominantColor = hasResults ? Object.entries(user.results).sort((a,b) => b[1]-a[1])[0][0] : null;
-
-        card.innerHTML = `
-            <div class="w-12 h-12 rounded-full ${getAvatarClass(idx)} flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                ${getInitials(user)}
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-white font-semibold truncate">${user.firstName} ${user.lastName}</p>
-                <p class="text-gray-500 text-xs truncate">${user.email}</p>
-            </div>
-            ${hasResults ? `
-                <div class="flex gap-1 flex-shrink-0">
-                    <span class="w-2 h-2 rounded-full bg-red-500" style="opacity:${user.results.red/48}"></span>
-                    <span class="w-2 h-2 rounded-full bg-yellow-500" style="opacity:${user.results.yellow/48}"></span>
-                    <span class="w-2 h-2 rounded-full bg-emerald-500" style="opacity:${user.results.green/48}"></span>
-                    <span class="w-2 h-2 rounded-full bg-blue-500" style="opacity:${user.results.blue/48}"></span>
-                </div>
-            ` : '<span class="text-xs text-gray-600 flex-shrink-0">New</span>'}
-            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        `;
-        list.appendChild(card);
-    });
-}
-
-function showRegistration() {
-    showSection('auth');
-    document.getElementById('userSelector').classList.add('hidden');
-    document.getElementById('registrationForm').classList.remove('hidden');
-    document.getElementById('verificationForm').classList.add('hidden');
-    document.getElementById('regError').classList.add('hidden');
-
-    // Show back button only if there are existing users
-    const backBtn = document.getElementById('backToSelectorBtn');
-    if (getStoredUsers().length > 0) {
-        backBtn.classList.remove('hidden');
-    } else {
-        backBtn.classList.add('hidden');
-    }
-
-    document.getElementById('regFirstName').value = '';
-    document.getElementById('regLastName').value = '';
-    document.getElementById('regEmail').value = '';
-}
-
-function selectUser(idx) {
-    const users = getStoredUsers();
-    currentUser = users[idx];
-    userHasPaid = getLocalPaidStatus(currentUser.email);
-    enterApp();
-}
-
-function enterApp() {
-    createParticles('particles');
-
-    // Set user name everywhere
-    const fullName = currentUser.firstName;
-    document.getElementById('heroUserName').textContent = fullName;
-    document.getElementById('surveyUserName').textContent = fullName;
-    document.getElementById('resultsUserName').textContent = fullName;
-
-    // Set avatars
-    const users = getStoredUsers();
-    const idx = findUserIndex(currentUser.email);
-    const cls = getAvatarClass(idx >= 0 ? idx : 0);
-    const initials = getInitials(currentUser);
-
-    ['userAvatarSmall', 'surveyAvatar', 'resultsAvatar'].forEach(id => {
-        const el = document.getElementById(id);
-        el.className = `w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${cls}`;
-        if (id === 'userAvatarSmall') el.className = el.className.replace('w-8 h-8', 'w-6 h-6');
-        el.textContent = initials;
-    });
-
-    // Check for previous results
-    const startBtn = document.getElementById('startSurveyBtn');
-    if (currentUser.results) {
-        document.getElementById('previousResults').classList.remove('hidden');
-        document.getElementById('startBtnText').textContent = 'Take It Again';
-        // Demote start button to secondary style when results exist
-        startBtn.className = 'group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl border-2 border-gray-700 text-gray-300 font-semibold hover:border-white hover:text-white transition-all duration-300';
-
-        const badges = document.getElementById('prevResultBadges');
-        badges.innerHTML = ['red','yellow','green','blue'].map(c => {
-            const score = currentUser.results[c];
-            const colorClass = { red: 'text-red-400', yellow: 'text-yellow-400', green: 'text-emerald-400', blue: 'text-blue-400' }[c];
-            return `<div class="text-center"><span class="text-2xl font-black ${colorClass}">${score}</span><p class="text-xs text-gray-500 capitalize">${c}</p></div>`;
-        }).join('');
-    } else {
-        document.getElementById('previousResults').classList.add('hidden');
-        document.getElementById('startBtnText').textContent = 'Start Your Assessment';
-        // Primary style for start button when no results
-        startBtn.className = 'group relative inline-flex items-center justify-center gap-3 px-10 py-5 bg-white text-gray-900 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 shadow-2xl shadow-white/10 hover:shadow-white/20';
-    }
-
-    showSection('hero');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function switchUser() {
-    currentUser = null;
-    userHasPaid = false;
-    answers = Array.from({ length: 12 }, () => [0, 0, 0, 0]);
-    currentQuestion = 0;
-    showUserSelector();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ============================================================
-// REGISTRATION + EMAIL VERIFICATION
-// ============================================================
-async function submitRegistration() {
-    const firstName = document.getElementById('regFirstName').value.trim();
-    const lastName = document.getElementById('regLastName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const errEl = document.getElementById('regError');
-
-    if (!firstName || !lastName) {
-        showRegError('Please enter your first and last name.');
-        return;
-    }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showRegError('Please enter a valid email address.');
-        return;
-    }
-
-    // Check if user already exists on this device
-    const existingIdx = findUserIndex(email);
-    if (existingIdx !== -1) {
-        showRegError('This email is already registered on this device. Use the user selector instead.');
-        return;
-    }
-
-    pendingReg = { firstName, lastName, email };
-
-    const btn = document.getElementById('regSubmitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
-    errEl.classList.add('hidden');
-
-    try {
-        const resp = await fetch('api/send-code.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ firstName, lastName, email })
-        });
-        const text = await resp.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = { error: 'Server error. Please try again.' }; }
-
-        if (!resp.ok) {
-            showRegError(data.error || 'Something went wrong. Please try again.');
-            btn.disabled = false;
-            btn.textContent = 'Send Confirmation Code';
-            return;
-        }
-
-        // Show verification form
-        document.getElementById('registrationForm').classList.add('hidden');
-        document.getElementById('verificationForm').classList.remove('hidden');
-        document.getElementById('verifyEmailDisplay').textContent = email;
-        document.getElementById('verifyCode').value = '';
-        document.getElementById('verifyError').classList.add('hidden');
-        document.getElementById('verifyCode').focus();
-
-    } catch (err) {
-        showRegError('Connection error. Please check your internet and try again.');
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Send Confirmation Code';
-}
-
-function showRegError(msg) {
-    const el = document.getElementById('regError');
-    el.textContent = msg;
-    el.classList.remove('hidden');
-    el.parentElement.classList.add('shake');
-    setTimeout(() => el.parentElement.classList.remove('shake'), 500);
-}
-
-async function verifyCode() {
-    const code = document.getElementById('verifyCode').value.trim();
-    if (code.length !== 6) return;
-
-    const errEl = document.getElementById('verifyError');
-    const spinner = document.getElementById('verifySpinner');
-    errEl.classList.add('hidden');
-    spinner.classList.remove('hidden');
-
-    try {
-        const resp = await fetch('api/verify-code.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: pendingReg.email, code })
-        });
-        const text = await resp.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = { error: 'Server error. Please try again.' }; }
-
-        if (!resp.ok) {
-            errEl.textContent = data.error || 'Confirmation failed.';
-            errEl.classList.remove('hidden');
-            document.getElementById('verifyCode').value = '';
-            document.getElementById('verifyCode').classList.add('shake');
-            setTimeout(() => document.getElementById('verifyCode').classList.remove('shake'), 500);
-            spinner.classList.add('hidden');
-            return;
-        }
-
-        // Success! Save user (restore existing results if they have them)
-        const newUser = {
-            firstName: pendingReg.firstName,
-            lastName: pendingReg.lastName,
-            email: pendingReg.email,
-            verifiedAt: data.user.verifiedAt,
-            results: data.existingResults || null
-        };
-
-        const users = getStoredUsers();
-        users.push(newUser);
-        saveUsers(users);
-
-        currentUser = newUser;
-        spinner.classList.add('hidden');
-        enterApp();
-
-    } catch (err) {
-        errEl.textContent = 'Connection error. Please try again.';
-        errEl.classList.remove('hidden');
-        spinner.classList.add('hidden');
-    }
-}
-
-async function resendCode() {
-    if (!pendingReg.email) return;
-    try {
-        await fetch('api/send-code.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pendingReg)
-        });
-        const errEl = document.getElementById('verifyError');
-        errEl.textContent = 'Fresh code sent! Look for the email.';
-        errEl.classList.remove('hidden');
-        errEl.classList.remove('text-red-400');
-        errEl.classList.add('text-emerald-400');
-        setTimeout(() => {
-            errEl.classList.add('text-red-400');
-            errEl.classList.remove('text-emerald-400');
-            errEl.classList.add('hidden');
-        }, 3000);
-    } catch {}
-}
-
-// ============================================================
-// SURVEY LOGIC
-// ============================================================
-function startSurvey() {
-    answers = Array.from({ length: 12 }, () => [0, 0, 0, 0]);
-    currentQuestion = 0;
-    showSection('survey');
-    renderQuestion();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function showSavedResults() {
-    if (!currentUser || !currentUser.results) return;
-    showSection('results');
-    displayResults(currentUser.results);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function renderQuestion() {
-    const q = questions[currentQuestion];
-    const container = document.getElementById('questionContainer');
-    const usedRatings = answers[currentQuestion].filter(v => v > 0);
-
-    container.innerHTML = '';
-    container.className = 'space-y-4 slide-enter';
-
-    const badge = document.createElement('div');
-    badge.className = 'text-center mb-2';
-    badge.innerHTML = `<span class="inline-block px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase glass text-gray-300">Question ${currentQuestion + 1}</span>`;
-    container.appendChild(badge);
-
-    q.traits.forEach((trait, idx) => {
-        const color = q.colors[idx];
-        const selectedRating = answers[currentQuestion][idx];
-        const colorClasses = { red: 'hover:border-red-500/50', yellow: 'hover:border-yellow-500/50', green: 'hover:border-emerald-500/50', blue: 'hover:border-blue-500/50' };
-        const selectedBorder = { red: 'border-red-500/40', yellow: 'border-yellow-500/40', green: 'border-emerald-500/40', blue: 'border-blue-500/40' };
-
-        const card = document.createElement('div');
-        card.className = `trait-card glass-light rounded-2xl p-5 md:p-6 border border-gray-200/20 shadow-xl ${selectedRating ? selectedBorder[color] : ''} ${colorClasses[color]}`;
-        if (selectedRating) card.style.background = `linear-gradient(135deg, ${getColorRgba(color, 0.08)}, rgba(255,255,255,0.92))`;
-
-        card.innerHTML = `
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-start gap-3 flex-1">
-                    <div class="w-2 h-2 rounded-full mt-2 flex-shrink-0 ${colorDescriptions[color].dot} opacity-60"></div>
-                    <p class="text-gray-800 font-medium text-base md:text-lg leading-snug">${trait}</p>
-                </div>
-                <div class="flex gap-2 flex-shrink-0 justify-end">
-                    ${[1,2,3,4].map(r => {
-                        const isSelected = selectedRating === r;
-                        const isUsedElsewhere = !isSelected && usedRatings.includes(r);
-                        let cls = 'rating-btn w-12 h-12 rounded-xl font-bold text-lg transition-all ';
-                        if (isSelected) cls += `${getButtonSelectedClass(color)} text-white shadow-lg scale-110`;
-                        else if (isUsedElsewhere) cls += 'bg-gray-100 text-gray-300 used';
-                        else cls += 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:shadow-md';
-                        return `<button class="${cls}" onclick="selectRating(${idx}, ${r})" ${isUsedElsewhere ? 'disabled' : ''}>${r}</button>`;
-                    }).join('')}
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-
-    document.getElementById('questionNum').textContent = currentQuestion + 1;
-    document.getElementById('progressPercent').textContent = Math.round((currentQuestion / 12) * 100);
-    document.getElementById('progressBar').style.width = (currentQuestion / 12 * 100) + '%';
-    document.getElementById('prevBtn').disabled = currentQuestion === 0;
-    updateNextButton();
-}
-
-function getColorRgba(color, alpha) {
-    const map = { red: '239,68,68', yellow: '245,158,11', green: '16,185,129', blue: '59,130,246' };
-    return `rgba(${map[color]},${alpha})`;
-}
-function getButtonSelectedClass(color) {
-    return { red: 'bg-red-500', yellow: 'bg-yellow-500', green: 'bg-emerald-500', blue: 'bg-blue-500' }[color];
-}
-
-function selectRating(traitIdx, rating) {
-    const prev = answers[currentQuestion].indexOf(rating);
-    if (prev !== -1 && prev !== traitIdx) answers[currentQuestion][prev] = 0;
-    answers[currentQuestion][traitIdx] = answers[currentQuestion][traitIdx] === rating ? 0 : rating;
-    renderQuestion();
-}
-
-function updateNextButton() {
-    const allRated = answers[currentQuestion].every(v => v > 0);
-    document.getElementById('nextBtn').disabled = !allRated;
-    document.getElementById('nextBtnText').textContent = currentQuestion === 11 ? 'View Results' : 'Next';
-}
-
-function nextQuestion() {
-    if (!answers[currentQuestion].every(v => v > 0)) return;
-    if (currentQuestion === 11) { showResults(); return; }
-    currentQuestion++;
-    renderQuestion();
-    window.scrollTo({ top: document.getElementById('survey').offsetTop, behavior: 'smooth' });
-}
-
-function prevQuestion() {
-    if (currentQuestion === 0) return;
-    currentQuestion--;
-    renderQuestion();
-}
-
-// ============================================================
-// RESULTS
-// ============================================================
-function calculateScores() {
-    const scores = { red: 0, yellow: 0, green: 0, blue: 0 };
-    for (let q = 0; q < 12; q++) {
-        for (let t = 0; t < 4; t++) {
-            scores[questions[q].colors[t]] += answers[q][t];
-        }
-    }
-    return scores;
-}
-
-function showResults() {
-    const scores = calculateScores();
-    saveCurrentUserResults(scores);
-    currentUser.results = scores;
-    saveResultsToServer(scores);
-    showSection('results');
-    displayResults(scores);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function saveResultsToServer(scores) {
-    if (!currentUser) return;
-    fetch('api/save-results.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            firstName: currentUser.firstName,
-            lastName: currentUser.lastName,
-            email: currentUser.email,
-            scores: scores
-        })
-    }).catch(() => {});
-}
-
-async function displayResults(scores) {
-    const maxScore = 48;
-    const dominant = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-    const desc = colorDescriptions[dominant];
-
-    document.getElementById('dominantColorText').textContent = desc.name;
-    document.getElementById('dominantColorText').className = `${desc.text} font-display`;
-    document.getElementById('dominantDesc').textContent = `Your strongest color is ${desc.name} \u2014 ${desc.tagline}. You scored ${scores[dominant]} out of a possible ${maxScore}.`;
-
-    // Reset bars first
-    ['red','yellow','green','blue'].forEach(c => {
-        document.getElementById('bar' + capitalize(c)).style.width = '0%';
-        document.getElementById('score' + capitalize(c)).textContent = '0';
-    });
-
-    setTimeout(() => {
-        ['red','yellow','green','blue'].forEach(c => {
-            document.getElementById('bar' + capitalize(c)).style.width = (scores[c] / maxScore * 100) + '%';
-            animateCounter('score' + capitalize(c), scores[c]);
-        });
-    }, 500);
-
-    setTimeout(() => drawColorWheel(scores), 300);
-
-    // Check payment status
-    if (!userHasPaid && currentUser) {
-        userHasPaid = await checkPaymentStatus(currentUser.email);
-    }
-
-    if (userHasPaid) {
-        document.getElementById('paywallCard').classList.add('hidden');
-        document.getElementById('paidContent').classList.remove('hidden');
-        renderDescriptions(scores, dominant);
-        renderVideos(dominant);
-    } else {
-        lockPaidContent();
-    }
-
-    setTimeout(() => {
-        document.querySelectorAll('.reveal').forEach((el, i) => {
-            setTimeout(() => el.classList.add('visible'), i * 200);
-        });
-    }, 800);
-    setTimeout(() => launchConfetti(dominant), 1200);
-}
-
-function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function renderVideos(dominant) {
-    const videoMap = {
-        red: { file: 'videos/ILC-Red-Video-For-App.mp4', label: 'Red', subtitle: 'The Ambitious Trailblazer', hex: '#EF4444', gradient: 'from-red-500 to-red-700', border: 'border-red-500/40', bg: 'bg-red-500/10', text: 'text-red-400' },
-        yellow: { file: 'videos/ILC-Yellow-Video-For-App.mp4', label: 'Yellow', subtitle: 'The Energetic Motivator', hex: '#F59E0B', gradient: 'from-yellow-500 to-amber-600', border: 'border-yellow-500/40', bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
-        green: { file: 'videos/ILC-Green-Video-For-App.mp4', label: 'Green', subtitle: 'The Reliable Harmonizer', hex: '#10B981', gradient: 'from-emerald-500 to-emerald-700', border: 'border-emerald-500/40', bg: 'bg-emerald-500/10', text: 'text-emerald-400' },
-        blue: { file: 'videos/ILC-Blue-Video-For-App.mp4', label: 'Blue', subtitle: 'The Careful Examiner', hex: '#3B82F6', gradient: 'from-blue-500 to-blue-700', border: 'border-blue-500/40', bg: 'bg-blue-500/10', text: 'text-blue-400' }
-    };
-
-    const container = document.getElementById('videoContainer');
-    const dom = videoMap[dominant];
-    const otherColors = Object.keys(videoMap).filter(c => c !== dominant);
-
-    container.innerHTML = `
-        <!-- Dominant Color Video - Featured -->
-        <div class="mb-8 rounded-2xl overflow-hidden border-2 ${dom.border} ${dom.bg} p-1">
-            <div class="flex items-center gap-3 px-4 py-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br ${dom.gradient} flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div>
-                    <span class="font-bold ${dom.text} text-lg">Your Dominant Color: ${dom.label}</span>
-                    <span class="block text-xs text-gray-400">${dom.subtitle}</span>
-                </div>
-                <span class="ml-auto px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${dom.bg} ${dom.text} border ${dom.border}">#1 Match</span>
-            </div>
-            <video controls preload="metadata" class="w-full rounded-xl" style="max-height: 420px; background: #000;">
-                <source src="${dom.file}" type="video/mp4">
-            </video>
-        </div>
-
-        <!-- Overview Video -->
-        <div class="mb-8 rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-1">
-            <div class="flex items-center gap-3 px-4 py-3">
-                <div class="w-8 h-8 rounded-full hero-gradient flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div>
-                    <span class="font-bold text-white text-lg">All Four Colors</span>
-                    <span class="block text-xs text-gray-400">Learn how all the personality types work together</span>
-                </div>
-            </div>
-            <video controls preload="metadata" class="w-full rounded-xl" style="max-height: 420px; background: #000;">
-                <source src="videos/ILC-Video-For-App.mp4" type="video/mp4">
-            </video>
-        </div>
-
-        <!-- Other Color Videos -->
-        <div class="grid md:grid-cols-3 gap-4">
-            ${otherColors.map(c => {
-                const v = videoMap[c];
-                return `
-                <div class="rounded-2xl overflow-hidden border ${v.border} ${v.bg} p-1">
-                    <div class="flex items-center gap-2 px-3 py-2">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br ${v.gradient} flex-shrink-0"></div>
-                        <div class="min-w-0">
-                            <span class="font-semibold ${v.text} text-sm">${v.label}</span>
-                            <span class="block text-[10px] text-gray-500 truncate">${v.subtitle}</span>
-                        </div>
-                    </div>
-                    <video controls preload="metadata" class="w-full rounded-xl" style="background: #000;">
-                        <source src="${v.file}" type="video/mp4">
-                    </video>
-                </div>`;
-            }).join('')}
-        </div>
-    `;
-}
-
-function animateCounter(elementId, target) {
-    const el = document.getElementById(elementId);
-    let current = 0;
-    const step = Math.max(1, Math.floor(target / 30));
-    const interval = setInterval(() => {
-        current += step;
-        if (current >= target) { current = target; clearInterval(interval); }
-        el.textContent = current;
-    }, 40);
-}
-
-function drawColorWheel(scores) {
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, 400, 400);
-    const cx = 200, cy = 200, r = 180;
-    const total = scores.red + scores.yellow + scores.green + scores.blue;
-    const colorMap = [
-        { key: 'red', color: '#EF4444' },
-        { key: 'yellow', color: '#F59E0B' },
-        { key: 'green', color: '#10B981' },
-        { key: 'blue', color: '#3B82F6' }
-    ];
-
-    let startAngle = -Math.PI / 2;
-    colorMap.forEach(({ key, color }) => {
-        const sliceAngle = (scores[key] / total) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, r, startAngle, startAngle + sliceAngle);
-        ctx.closePath();
-        const grad = ctx.createRadialGradient(cx, cy, 60, cx, cy, r);
-        grad.addColorStop(0, color + '40');
-        grad.addColorStop(1, color);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        const midAngle = startAngle + sliceAngle / 2;
-        const lx = cx + Math.cos(midAngle) * r * 0.65;
-        const ly = cy + Math.sin(midAngle) * r * 0.65;
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 20px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(Math.round(scores[key] / total * 100) + '%', lx, ly);
-        startAngle += sliceAngle;
-    });
-}
-
-function renderDescriptions(scores, dominant) {
-    const container = document.getElementById('descriptions');
-    container.innerHTML = '';
-    const sorted = Object.entries(scores).sort((a, b) => {
-        if (a[0] === dominant) return -1;
-        if (b[0] === dominant) return 1;
-        return b[1] - a[1];
-    });
-
-    sorted.forEach(([color]) => {
-        const d = colorDescriptions[color];
-        const isDominant = color === dominant;
-        const card = document.createElement('div');
-        card.className = `reveal rounded-2xl border ${d.border} bg-gradient-to-br ${d.bg} overflow-hidden ${isDominant ? 'md:col-span-2' : ''}`;
-        card.innerHTML = `
-            <button onclick="toggleDesc(this)" class="w-full p-6 text-left flex items-center justify-between group">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl ${d.dot} flex items-center justify-center text-white font-black text-lg shadow-lg">${scores[color]}</div>
-                    <div>
-                        <h4 class="font-bold text-xl ${d.text}">${d.name} ${isDominant ? '<span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-white/10 text-white/60 uppercase tracking-wider">Dominant</span>' : ''}</h4>
-                        <p class="text-gray-400 text-sm">${d.tagline}</p>
-                    </div>
-                </div>
-                <svg class="w-5 h-5 text-gray-500 group-hover:text-white transition-all transform chevron ${isDominant ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div class="desc-content ${isDominant ? 'open' : ''} px-6 pb-6">
-                <div class="space-y-6 pt-2">
-                    <div><h5 class="text-sm font-bold uppercase tracking-wider ${d.text} mb-3">What Makes This Color Shine</h5>
-                        <ul class="space-y-2">${d.positive.map(t => `<li class="flex items-start gap-2 text-gray-300 text-sm"><span class="mt-1.5 w-1.5 h-1.5 rounded-full ${d.dot} flex-shrink-0"></span>${t}</li>`).join('')}</ul></div>
-                    <div><h5 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Room to Grow</h5>
-                        <ul class="space-y-2">${d.negative.map(t => `<li class="flex items-start gap-2 text-gray-400 text-sm"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-600 flex-shrink-0"></span>${t}</li>`).join('')}</ul></div>
-                    <div><h5 class="text-sm font-bold uppercase tracking-wider ${d.text} mb-3">How to Connect With Them</h5>
-                        <ul class="space-y-2">${d.needs.map(t => `<li class="flex items-start gap-2 text-gray-300 text-sm"><span class="mt-1.5 w-1.5 h-1.5 rounded-full ${d.dot} flex-shrink-0 opacity-60"></span>${t}</li>`).join('')}</ul></div>
-                </div>
-            </div>`;
-        container.appendChild(card);
-    });
-}
-
-function toggleDesc(btn) {
-    const content = btn.nextElementSibling;
-    const chevron = btn.querySelector('.chevron');
-    content.classList.toggle('open');
-    chevron.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : '';
-}
-
-function retakeSurvey() {
-    startSurvey();
-}
-
-// ============================================================
-// CONFETTI
-// ============================================================
-function launchConfetti(dominant) {
-    const colorSets = {
-        red: ['#EF4444','#F87171','#FCA5A5','#FECACA'],
-        yellow: ['#F59E0B','#FBBF24','#FCD34D','#FDE68A'],
-        green: ['#10B981','#34D399','#6EE7B7','#A7F3D0'],
-        blue: ['#3B82F6','#60A5FA','#93C5FD','#BFDBFE']
-    };
-    const colors = colorSets[dominant];
-    for (let i = 0; i < 60; i++) {
-        const p = document.createElement('div');
-        p.className = 'confetti-piece';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.animationDuration = (2 + Math.random() * 3) + 's';
-        p.style.animationDelay = Math.random() * 1.5 + 's';
-        p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        p.style.width = (6 + Math.random() * 8) + 'px';
-        p.style.height = p.style.width;
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 5000);
-    }
-}
-
-// ============================================================
-// INIT
-// ============================================================
-initApp();
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    })();
 </script>
+
 </body>
 </html>
