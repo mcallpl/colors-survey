@@ -211,7 +211,7 @@ function sendNotificationEmail($firstName, $lastName, $email, $red, $yellow, $gr
     <!-- Footer -->
     <p style="text-align:center;color:#94a3b8;font-size:11px;margin-top:20px;">
         Color Chemistry &mdash; Personality Color Assessment<br>
-        <a href="https://peoplestar.com/colors-survey/admin.html" style="color:#6366f1;">View Admin Dashboard</a>
+        <a href="/admin.html" style="color:#6366f1;">View Admin Dashboard</a>
     </p>
 </div>
 </body>

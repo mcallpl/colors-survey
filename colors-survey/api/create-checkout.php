@@ -42,8 +42,8 @@ $result = stripeRequest('/checkout/sessions', [
     'line_items[0][price]' => STRIPE_PRICE_ID,
     'line_items[0][quantity]' => 1,
     'customer_email' => $email,
-    'success_url' => 'https://peoplestar.com/colors-survey/?payment=success&session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => 'https://peoplestar.com/colors-survey/?payment=cancelled',
+    'success_url' => '/?payment=success&session_id={CHECKOUT_SESSION_ID}',
+    'cancel_url' => '/?payment=cancelled',
     'metadata[email]' => $email,
 ]);
 
